@@ -1150,36 +1150,510 @@ function ResultsTab() {
   );
 }
 
-// ── MAIN ─────────────────────────────────────────────────────
-export default function App() {
-  const [tab, setTab] = useState(0);
-  const tabs = ["Overview", "Shock Detection", "5D Classifier", "Distributions", "Ladder", "Worked Example", "The Math", "Results", "Math: ELI15"];
+// ── BIMBA ARTICLE DATA ───────────────────────────────────────
+const BIMBA_STRATS = [
+  { n: 1, name: "Hyper-Sniper", range: "1–10¢", risk: "HIGH", riskColor: C.red, core: "Buy tiny positions on the extreme cheap side. One win at 3,000% covers 50 small losses. The crowd laughs at 1¢ shares. The crowd exits when they resolve at 100¢.", wallet: "mafiosa", walletStats: "4,530 trades · $56.8k profit · 6,500% on BTC Up @ 1.5¢", tool: "Sort markets by lowest ask first." },
+  { n: 2, name: "5-Min Window Stack", range: "BTC 5-min candles", risk: "MEDIUM", riskColor: C.amber, core: "Don't bet 'will BTC go up today'. Bet on 5-minute candles. 300 independent windows per day = 300 chances to apply the same edge. Law of large numbers becomes your best friend.", wallet: "0xb55fa1296E6", walletStats: "32,263 trades · $423k profit · 533% on BTC Down @ 15.8¢", tool: "Polymarket + Pyth feed + local script." },
+  { n: 3, name: "Mid-Range Doubler", range: "30–55¢", risk: "LOW", riskColor: C.accent, core: "Low stress, high frequency. Buy at 30–55¢, wait 5 minutes, cash 80–150% returns. No 10× dreams, no 0¢ nightmares. Pure volume game.", wallet: "JetFadil", walletStats: "15,718 trades · $161k profit · consistent 100–400% wins on 30–55¢ entries", tool: "Discipline, no emotion, 200+ trades/day." },
+  { n: 4, name: "Post-News Fade", range: "NO at 15–25¢", risk: "LOW", riskColor: C.accent, core: "Truth Social ceasefire post? Everyone rushes YES at 80¢. Read the resolution rules — official confirmation required. Buy NO at 20¢. Wait 3 days. Print.", wallet: "strike123 (Resolution Exploit)", walletStats: "948,406 shares of NO at 33¢ · MicroStrategy deadline passed · NO wins", tool: "Read resolution rules before every entry." },
+  { n: 5, name: "Underdog Multi-Sport", range: "15–35¢", risk: "MEDIUM", riskColor: C.amber, core: "NCAA basketball, tennis qualifiers, NHL overs, UFC prelims. The crowd overweights favorites. Buy the dog at 15–35¢. One upset = 3–5×. Spread across 10 sports = 10 chances per night.", wallet: "ferrariChampions2026", walletStats: "16,757 trades · $2.4M profit · 426% on Strickland @ 19¢ · 1,335% on Angels @ 6¢", tool: "Polymarket sports page + nightly calendar scan." },
+  { n: 6, name: "Whale-Track Copy", range: "90%+ win wallets", risk: "MEDIUM", riskColor: C.amber, core: "Find wallets with 90%+ win rate over 5k settled trades. Copy their timing — not their PnL. When a bot buys 1,500 shares at 8¢, buy right behind it. Free alpha.", wallet: "JewishNinja", walletStats: "7 trades · $2M profit · 426% on UFC underdog · copied by hundreds", tool: "On-chain explorer + Polycool / PolyTrack." },
+  { n: 7, name: "Resolution Rule Exploit", range: "YES or NO", risk: "LOW", riskColor: C.accent, core: "'Will MicroStrategy sell Bitcoin by May 31?' — news came after the deadline. NO wins. Buy NO at 30¢ when everyone panics. Always read the fine print before a market closes.", wallet: "strike123", walletStats: "948,406 shares of NO at 33¢ and winning", tool: "Read every market's resolution rules completely." },
+  { n: 8, name: "Weather Range Strip", range: "Adjacent temp brackets", risk: "LOW", riskColor: C.accent, core: "Don't bet 'Seoul high = 25°C exactly'. Buy 23°, 24°, 25°, 26° same size. One hits, pays 3–5×, rest expire worthless. Net +10% with near-zero directional risk.", wallet: "Anonymous weather bot", walletStats: "Consistent profits from temperature range markets · minimal variance", tool: "Weather markets on Polymarket — surprisingly inefficient." },
+  { n: 9, name: "Event-Clustering Combo", range: "Cross-sport nights", risk: "HIGH", riskColor: C.red, core: "UFC main card + NBA playoff + CS2 major same night. Your edges are correlated. If underdogs win in one sport, public sentiment shifts. Front-run the next market.", wallet: "0x9a13cf1b3aa7", walletStats: "BIG vs NRG CS2: BIG from 0–12 to 16–12 · BIG at 1–2¢ = 50–100× for early buyers", tool: "Multi-screen discipline required." },
+  { n: 10, name: "Bot-Hunter Feedback Loop", range: "META STRATEGY", risk: "SYSTEM", riskColor: C.blue, core: "After every trade, log why you entered (price, catalyst, expected win%). Once a week, feed logs to Claude: 'What patterns am I missing?' The bot learns your mistakes faster than you do.", wallet: "Bonereaper", walletStats: "44k trades · $858k profit · perfectly smooth 45° PnL curve", tool: "Obsidian + Claude Code + NotebookLM pipeline." },
+];
+
+const BIMBA_VALIDATION = [
+  { n: 1, strength: "STRONG", color: C.blue,   title: "Kelly Criterion + Longshot Mispricing in Prediction Markets",     body: "The Kelly Criterion (Bell Labs, 1956) formalised for systematic traders in QuantStart's Money Management article proves high-variance strategies are mathematically valid when edge exists. CEPR research on Kalshi found takers lose ~32% on longshot contracts on average — if you are the better-informed buyer in a structurally mispriced market, the error works in your favour at scale.", sources: ["QuantStart — Money Management via the Kelly Criterion", "CEPR — The Economics of the Kalshi Prediction Market (2025)"], caveat: "Kelly requires accurate edge estimation. Overconfident estimates cause ruin — QuantStart recommends half-Kelly as a practical ceiling." },
+  { n: 2, strength: "STRONG", color: C.blue,   title: "Law of Large Numbers + Independent Events",                        body: "The Kelly Criterion math paper (arXiv:2002.03448, Lototsky & Pollok) explicitly shows long-term growth rate g(f) converges via the law of large numbers. 300 independent 5-minute windows create exactly the sample size needed for statistical edge to express reliably. QuantStart's strategy identification guide positions trading frequency as a core lever — higher frequency reduces return volatility when edge is positive.", sources: ["arXiv:2002.03448 — Kelly Criterion: From Random Walk to Lévy Processes", "QuantStart — How to Identify Algorithmic Trading Strategies"], caveat: "Windows must be genuinely independent. BTC price autocorrelation can violate this assumption — test it." },
+  { n: 3, strength: "MODERATE", color: C.amber, title: "Market-Making Economics at the 50% Probability Zone",              body: "The 30–55¢ range is the liquid near-50% zone with tightest bid-ask spreads. DeFi Prime (2026) reports Polymarket market makers earned over $20M in 2024 — the mid-range volume game is structurally identical to market-making: capturing the spread repeatedly at scale. QuantStart classifies this as the high-Sharpe, low-volatility income strategy suited for disciplined high-frequency operators.", sources: ["DeFi Prime — Definitive Guide to Polymarket Ecosystem (2026)", "QuantStart — Beginners Guide to Quantitative Trading"], caveat: "200+ trades/day creates significant execution overhead. Not viable without automation." },
+  { n: 4, strength: "STRONG", color: C.blue,   title: "Investor Overreaction to News + Prospect Theory",                 body: "Brown (2024) empirically confirms loss-averse investors overreact to pessimistic news (ScienceDirect, 2025). Kahneman & Tversky's Prospect Theory explains asymmetric gain/loss evaluation causing panic-driven mispricings. On Polymarket, this manifests as YES prices spiking on unverified social media posts. The MicroStrategy $60M dispute and Polymarket's 1,150+ disputed markets in 2026 confirm the structural resolution gap Bimba exploits.", sources: ["ScienceDirect — Investigating the Impact of Sentiments on Stock Market (2025)", "The Defiant — $60M Polymarket MicroStrategy Dispute (Jun 2026)"], caveat: "MOOV2 update tightens resolution timelines. Some fades require 2–3 days while capital is locked." },
+  { n: 5, strength: "VERY STRONG", color: C.accent, title: "Favorite-Longshot Bias — Most Documented Edge in Betting Research", body: "Whelan (2024, Economica) proves the bias persists in competitive fixed-odds markets. Ottaviani & Sørensen (AEJ Microeconomics) attribute it to gambler disagreement and bookmaker risk aversion. ScienceDirect evidence from NCAA basketball and college football shows heavy favorites yield near-zero returns while underdogs offer positive expected value before transaction costs. CEPR Kalshi data: takers lose 32% on average on longshot contracts.", sources: ["Whelan — Risk Aversion and Favourite-Longshot Bias, Economica 2024", "ScienceDirect — Favorite-Longshot Bias in NCAA Basketball & Football", "CEPR — Economics of Kalshi Prediction Market (2025)"], caveat: "Transaction costs compress the edge. Exploitable primarily with tight execution and sufficient sample size (10+ sport events per night)." },
+  { n: 6, strength: "MODERATE", color: C.amber, title: "Smart Money Following — Empirically Real but Survivorship-Biased",  body: "A study on 43 Hyperliquid whale addresses (124,838 trades, Aug–Nov 2025) found that copying all whale trades without discrimination yields a 61.5% win rate. Polymarket-specific analysis shows many apparent whale win rates are inflated by survivorship bias — true settled-trade win rates fall to 55–62%. Polycool data reports top 0.5% of wallets at 57.9–73% win rates and $11k–$75k+ PnL. Timing-copy outperforms PnL-copy.", sources: ["Medium — ML Analysis of Whale Trading on Hyperliquid: 61.5% win rate (Nov 2025)", "Polymarket Whale Tracking Guide — Survivorship Bias (Mar 2026)"], caveat: "Survivorship bias dominates. Verify 5k+ settled trades (not just open positions) before following any wallet." },
+  { n: 7, strength: "STRONG", color: C.blue,   title: "UMA Oracle Resolution Gaps — Growing, Well-Documented",           body: "Polymarket logged 1,150+ disputed markets in 2026, exceeding the full 2025 total (The Defiant). The March 2025 $7M governance attack and $60M MicroStrategy dispute confirm resolution rules are structurally exploitable. UMA's MOOV2 whitelist update (The Block, Aug 2025) acknowledged the problem but did not resolve underlying rule ambiguity — the edge persists.", sources: ["The Defiant — $60M Polymarket Dispute, UMA Oracle on Trial (Jun 2026)", "The Block — UMA MOOV2 Whitelist Update (Aug 2025)", "Orochi Network — $7M Oracle Manipulation Attack (Mar 2025)"], caveat: "Oracle governance attacks can produce incorrect resolutions even when your rule-reading is correct. The $7M Ukraine mineral deal case is a live example." },
+  { n: 8, strength: "MODERATE", color: C.amber, title: "Weather Markets: Structural Inefficiency + Options Delta-Neutrality", body: "UMA MOOV2 explicitly identifies weather markets as 'non-contentious' with fewer disputes than political markets (The Block, Aug 2025) — lower institutional attention correlates with pricing inefficiency. The range-strip is structurally identical to options straddle/strangle positioning — a well-documented derivatives risk-management technique formalised in QuantStart's derivatives pricing series.", sources: ["The Block — UMA MOOV2: Weather as Low-Contention Market (Aug 2025)", "QuantStart — Derivatives Pricing I: Black-Scholes Model"], caveat: "Bracket sizing must be precisely calibrated. Over-wide brackets dilute returns by paying for coverage you do not need." },
+  { n: 9, strength: "EMERGING", color: C.muted, title: "Cross-Market Sentiment Contagion",                                  body: "Bai et al. (2024) confirm sentiment spillover across global equity markets (MDPI, 2025). At $44B volume in 2025 (DeFi Prime), Polymarket sports events now move enough capital that cross-market sentiment shifts are plausible and detectable. Theoretically sound — but limited empirical validation exists for this specific mechanism in prediction markets.", sources: ["MDPI — News Sentiment and Stock Market Dynamics (Jul 2025)", "DeFi Prime — Polymarket Ecosystem: $44B volume in 2025 (2026)"], caveat: "Least validated strategy in the list. Use Strategy 10's feedback loop to test and quantify your own edge here before scaling." },
+  { n: 10, strength: "STRONG", color: C.blue, title: "AI-Augmented Feedback Loop — Foundation of All 9 Strategies",      body: "QuantStart's foundational guide identifies systematic feedback as the core of profitable algorithmic trading. The RL+LLM pipeline (arXiv:2510.10526) outperforms pure technical models in controlled tests. The Polymarket ecosystem now has 170+ tools (DeFi Prime, 2026) built on this premise — AI-assisted analysis is mainstream. Bonereaper's 44k trades / $858k / 45° PnL curve is the empirical output of this methodology applied consistently.", sources: ["QuantStart — Beginners Guide to Quantitative Trading", "arXiv:2510.10526 — Integrating LLMs and RL for Sentiment Trading (2025)", "DeFi Prime — Definitive Guide to Polymarket Ecosystem (2026)"], caveat: "Only as good as trade log quality. Vague entry rationales ('felt right') produce no usable patterns." },
+];
+
+// ── BIMBA SECTION COMPONENTS ─────────────────────────────────
+function BimbaOverviewTab() {
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>About the author</div>
+        <div style={{ background: C.code, padding: 16, borderRadius: 6, marginBottom: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 16, alignItems: "start" }}>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: C.amber + "30", border: `2px solid ${C.amber}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>B</div>
+            <div>
+              <div style={{ fontSize: 13, color: C.text, ...mono, fontWeight: "bold" }}>Bimba <span style={{ color: C.muted, fontWeight: "normal" }}>(@BimbaCrypto)</span></div>
+              <div style={{ fontSize: 11, color: C.muted, ...mono, marginTop: 6, lineHeight: 1.75 }}>Systematic Polymarket trader. Works with Claude + BTC 5-min windows, sports underdogs, and UFC snipes. Publicly tracks wallets and results. Emphasises systematic extraction over news-based speculation.</div>
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          <Stat value="55% → 82%" label="Hit rate after implementing all 10 strategies" color={C.accent} />
+          <Stat value="3×" label="Average win size increase after the firmware upgrade" color={C.amber} />
+          <Stat value="45° curve" label="PnL shape — was heartbeat, now staircase" color={C.blue} />
+        </div>
+      </div>
+
+      <div style={card}>
+        <div style={h2style}>What this article is</div>
+        <p style={pstyle}>This is not a list of tips. It is a <span style={{ color: C.accent }}>mental firmware upgrade</span> — a complete operating system for treating Polymarket as a systematic extraction machine rather than a news-betting site. The 10 strategies exist on a deliberate spectrum.</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {[
+            { label: "Pure execution plays", items: ["#1  Hyper-Sniper (1–10¢)", "#2  5-Min Window Stack", "#3  Mid-Range Doubler"], color: C.red },
+            { label: "Information edge plays", items: ["#4  Post-News Fade", "#5  Underdog Multi-Sport Stack", "#6  Whale-Track Copy"], color: C.amber },
+            { label: "Structure exploits", items: ["#7  Resolution Rule Exploit", "#8  Weather Range Strip", "#9  Event-Clustering Combo"], color: C.blue },
+            { label: "The meta-system", items: ["#10 Bot-Hunter Feedback Loop", "→ ties all 9 strategies together", "→ self-improving every week"], color: C.accent },
+          ].map((g, i) => (
+            <div key={i} style={{ background: C.code, padding: 12, borderRadius: 6, border: `1px solid ${g.color}28` }}>
+              <div style={{ fontSize: 10, color: g.color, ...mono, fontWeight: "bold", marginBottom: 8 }}>{g.label}</div>
+              {g.items.map((item, j) => <div key={j} style={{ fontSize: 11, color: C.muted, ...mono, padding: "2px 0" }}>{item}</div>)}
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 12, padding: 14, background: C.accent + "08", border: `1px solid ${C.accent}38`, borderRadius: 6, fontSize: 11, color: C.text, ...mono, lineHeight: 1.8 }}>
+          <span style={{ color: C.accent, fontWeight: "bold" }}>Key insight:</span> Strategy 10 is what transforms 9 tactics into a system. Without the logging and AI feedback loop, the other strategies are just isolated trades. With it, they compound into a learning machine that improves its own win rate every week.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TenStrategiesTab() {
+  const [active, setActive] = useState(0);
+  const strat = BIMBA_STRATS[active];
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>The 10 strategies</div>
+        <p style={pstyle}>Click any strategy card to expand the full breakdown, example wallet, and setup requirements:</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, marginBottom: 16 }}>
+          {BIMBA_STRATS.map((s, i) => (
+            <button key={i} onClick={() => setActive(i)} style={{
+              padding: "9px 6px", background: active === i ? s.riskColor + "22" : C.code,
+              border: `1px solid ${active === i ? s.riskColor : C.border}`,
+              color: active === i ? s.riskColor : C.muted, borderRadius: 4, cursor: "pointer", fontSize: 9, ...mono, textAlign: "center",
+            }}>
+              <div style={{ fontWeight: "bold", marginBottom: 3 }}>#{s.n}</div>
+              <div style={{ fontSize: 8, lineHeight: 1.4 }}>{s.name.split(" ").slice(0, 2).join(" ")}</div>
+            </button>
+          ))}
+        </div>
+
+        <div style={{ background: C.code, border: `1px solid ${strat.riskColor}`, borderRadius: 8, padding: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <div style={{ fontSize: 24, color: strat.riskColor, fontWeight: "bold", ...mono }}>#{strat.n}</div>
+            <div>
+              <div style={{ fontSize: 15, color: strat.riskColor, ...mono, fontWeight: "bold" }}>{strat.name}</div>
+              <div style={{ fontSize: 10, color: C.muted, ...mono }}>{strat.range}</div>
+            </div>
+            <span style={{ marginLeft: "auto", padding: "2px 8px", background: strat.riskColor + "20", border: `1px solid ${strat.riskColor}40`, borderRadius: 2, fontSize: 9, color: strat.riskColor, ...mono }}>{strat.risk}</span>
+          </div>
+
+          <div style={{ fontSize: 12, color: C.text, ...mono, lineHeight: 1.85, marginBottom: 16, padding: "12px 14px", background: "#071018", borderRadius: 4, borderLeft: `2px solid ${strat.riskColor}` }}>
+            {strat.core}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={{ padding: 12, background: "#071018", borderRadius: 4 }}>
+              <div style={{ fontSize: 9, color: C.muted, ...mono, marginBottom: 6 }}>EXAMPLE WALLET / PROFILE</div>
+              <div style={{ fontSize: 11, color: C.blue, ...mono, fontWeight: "bold", marginBottom: 4 }}>{strat.wallet}</div>
+              <div style={{ fontSize: 10, color: C.muted, ...mono, lineHeight: 1.6 }}>{strat.walletStats}</div>
+            </div>
+            <div style={{ padding: 12, background: "#071018", borderRadius: 4 }}>
+              <div style={{ fontSize: 9, color: C.muted, ...mono, marginBottom: 6 }}>SETUP / TOOL</div>
+              <div style={{ fontSize: 11, color: C.text, ...mono, lineHeight: 1.65 }}>{strat.tool}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BimbaValidationTab() {
+  const [active, setActive] = useState(0);
+  const v = BIMBA_VALIDATION[active];
+  const SC = { "VERY STRONG": C.accent, "STRONG": C.blue, "MODERATE": C.amber, "EMERGING": C.muted };
+  const sc = SC[v.strength] || C.muted;
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>Validation analysis</div>
+        <p style={pstyle}>Each strategy cross-referenced against peer-reviewed research, QuantStart's systematic trading library, and live Polymarket data. Select a strategy:</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, marginBottom: 16 }}>
+          {BIMBA_VALIDATION.map((v2, i) => {
+            const c = SC[v2.strength] || C.muted;
+            return (
+              <button key={i} onClick={() => setActive(i)} style={{
+                padding: "9px 4px", background: active === i ? c + "18" : C.code,
+                border: `1px solid ${active === i ? c : C.border}`, color: active === i ? c : C.muted,
+                borderRadius: 4, cursor: "pointer", fontSize: 9, ...mono, textAlign: "center",
+              }}>
+                <div style={{ fontWeight: "bold", marginBottom: 3 }}>#{v2.n}</div>
+                <div style={{ fontSize: 7, color: active === i ? c : C.border, marginTop: 2 }}>{v2.strength}</div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ background: C.code, border: `1px solid ${sc}`, borderRadius: 8, padding: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 9, color: sc, ...mono, fontWeight: "bold", padding: "3px 9px", background: sc + "18", border: `1px solid ${sc}40`, borderRadius: 2 }}>{v.strength}</span>
+            <div style={{ fontSize: 13, color: sc, ...mono, fontWeight: "bold" }}>Strategy #{v.n} — {v.title}</div>
+          </div>
+          <div style={{ fontSize: 12, color: C.text, ...mono, lineHeight: 1.85, marginBottom: 16 }}>{v.body}</div>
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 9, color: C.muted, ...mono, marginBottom: 8 }}>SOURCES USED:</div>
+            <div style={{ display: "grid", gap: 6 }}>
+              {v.sources.map((src, i) => (
+                <div key={i} style={{ fontSize: 10, color: C.blue, ...mono, padding: "5px 10px", background: C.blue + "0e", border: `1px solid ${C.blue}20`, borderRadius: 3 }}>↗ {src}</div>
+              ))}
+            </div>
+          </div>
+          <div style={{ padding: "10px 14px", background: C.amber + "0e", border: `1px solid ${C.amber}38`, borderRadius: 4, fontSize: 11, color: C.amber, ...mono, lineHeight: 1.7 }}>
+            <span style={{ fontWeight: "bold" }}>⚠ Caveat:</span> {v.caveat}
+          </div>
+        </div>
+      </div>
+
+      <div style={card}>
+        <div style={h2style}>Evidence strength key</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {[
+            { s: "VERY STRONG", c: C.accent, d: "Multiple peer-reviewed papers with direct replication. Named phenomenon in academic literature (e.g. favorite-longshot bias)." },
+            { s: "STRONG", c: C.blue, d: "1–2 quality papers or major data studies directly validating the mechanism. Solid theoretical basis." },
+            { s: "MODERATE", c: C.amber, d: "Indirect evidence or theoretical framework supports it. Limited direct Polymarket-specific data." },
+            { s: "EMERGING", c: C.muted, d: "Theoretically sound but insufficient empirical data. Requires personal backtesting before scaling capital." },
+          ].map((e, i) => (
+            <div key={i} style={{ background: C.code, padding: 12, borderRadius: 6, border: `1px solid ${e.c}28` }}>
+              <div style={{ fontSize: 10, color: e.c, ...mono, fontWeight: "bold", marginBottom: 6 }}>{e.s}</div>
+              <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.6 }}>{e.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BimbaMindTab() {
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>The mental firmware</div>
+        <p style={pstyle}>Bimba's core framing: <span style={{ color: C.accent }}>stop thinking like a fan, start thinking like an oracle.</span> The 10 strategies are implementations of one operating system — that Polymarket is a venue where systematic thinkers extract value from emotional thinkers at scale and volume.</p>
+        <div style={{ background: C.code, padding: 16, borderRadius: 6, marginBottom: 0 }}>
+          <div style={{ fontSize: 10, color: C.amber, ...mono, fontWeight: "bold", marginBottom: 14 }}>The firmware has 3 core upgrades:</div>
+          {[
+            { n: "01", title: "Market ≠ Outcome", body: "You are not predicting what will happen. You are identifying where the crowd has mispriced the probability of what will happen. The event is the catalyst. The mispricing is the trade." },
+            { n: "02", title: "Rules > News", body: "For 90% of Polymarket disputes, the market resolution rules say something different from what social media suggests. Reading the rules precisely is a separate, learnable skill that most participants skip entirely. It is also the least competitive edge in the list." },
+            { n: "03", title: "Volume × Edge > Single Bet", body: "A smooth 45° PnL curve (Bonereaper: 44k trades, $858k) beats a volatile one with the same total return. More trades means the law of large numbers works faster. Strategy 10 — the feedback loop — is what scales the edge over time." },
+          ].map((u, i) => (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "30px 1fr", gap: 12, padding: "12px 0", borderBottom: i < 2 ? `1px solid ${C.border}30` : "none" }}>
+              <div style={{ fontSize: 14, color: C.amber, ...mono, fontWeight: "bold" }}>{u.n}</div>
+              <div>
+                <div style={{ fontSize: 12, color: C.amber, ...mono, fontWeight: "bold", marginBottom: 6 }}>{u.title}</div>
+                <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.7 }}>{u.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={card}>
+        <div style={h2style}>Bimba vs Roan — Two systematic approaches compared</div>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, ...mono }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+                {["Dimension", "Roan — World Cup Bot", "Bimba — 10 Strategies"].map(h => (
+                  <th key={h} style={{ padding: "8px 12px", color: C.muted, textAlign: "left", fontWeight: "normal" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ["Approach", "Statistical / mathematical", "Empirical / observational"],
+                ["Strategy count", "1 deep strategy", "10 parallel strategies"],
+                ["Primary edge", "Price shock overreaction", "Multiple structural inefficiencies"],
+                ["Data requirement", "Historical distributions required", "Can start immediately"],
+                ["Automation level", "Fully automated bot", "Semi-manual to full automation"],
+                ["Learning method", "Backtest before deploy", "Live log → Claude feedback"],
+                ["Risk profile", "Defined by percentile ladder", "Diversified across 10 plays"],
+                ["Best for", "Engineers building systems", "Traders iterating in real time"],
+              ].map((row, i) => (
+                <tr key={i} style={{ borderBottom: `1px solid ${C.border}18` }}>
+                  <td style={{ padding: "8px 12px", color: C.muted }}>{row[0]}</td>
+                  <td style={{ padding: "8px 12px", color: C.accent }}>{row[1]}</td>
+                  <td style={{ padding: "8px 12px", color: C.amber }}>{row[2]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div style={{ marginTop: 14, padding: 14, background: C.blue + "0e", border: `1px solid ${C.blue}38`, borderRadius: 6, fontSize: 11, color: C.text, ...mono, lineHeight: 1.8 }}>
+          <span style={{ color: C.blue, fontWeight: "bold" }}>Combined view:</span> Roan provides the mathematical foundation for individual trade decisions. Bimba provides the portfolio diversification and feedback infrastructure that makes a trading operation sustainable at scale. A serious systematic Polymarket operation would draw on both frameworks.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── LIBRARY DATA ─────────────────────────────────────────────
+// To add a new article: push a new object into ARTICLES.
+// All section components referenced here must be defined above.
+const ARTICLES = [
+  {
+    id: "world-cup-bot",
+    title: "Trading the FIFA World Cup Like a Quant",
+    subtitle: "Shock-recovery strategy for Polymarket — FIFA World Cup 2026",
+    author: "RohOnChain",
+    handle: "@RohOnChain",
+    date: "Jun 6, 2026",
+    difficulty: "INTERMEDIATE",
+    color: C.accent,
+    tags: ["Prediction Markets", "Sports Trading", "Python", "Strategy"],
+    stats: ["104 matches", "$1.4B market", "135% backtest ROI"],
+    description: "Complete breakdown of a systematic shock-recovery trading bot built for Polymarket during FIFA World Cup 2026. Covers price shock detection, five-dimension market classification, building historical depth distributions from the Dome API, and laddered limit order execution.",
+    sourceUrl: "https://x.com/rohonchain/status/2061814989279949126",
+    sections: [
+      { id: "overview",   label: "Overview",        component: OverviewTab },
+      { id: "shock",      label: "Shock Detection", component: ShockTab },
+      { id: "classifier", label: "5D Classifier",   component: ClassifierTab },
+      { id: "dist",       label: "Distributions",   component: DistributionsTab },
+      { id: "ladder",     label: "Ladder",           component: LadderTab },
+      { id: "example",    label: "Worked Example",  component: WorkedExampleTab },
+      { id: "math",       label: "The Math",         component: MathTab },
+      { id: "results",    label: "Results",          component: ResultsTab },
+      { id: "eli15",      label: "Math: ELI15",      component: MathELI15Tab },
+    ],
+  },
+  {
+    id: "bimba-10-strategies",
+    title: "10 Strategies That Turned Polymarket Trading From Gambling Into a Money Printer",
+    subtitle: "A complete mental firmware upgrade for systematic Polymarket extraction",
+    author: "Bimba",
+    handle: "@BimbaCrypto",
+    date: "Jun 2026",
+    difficulty: "BEGINNER",
+    color: C.amber,
+    tags: ["Polymarket", "Strategy", "Copy Trading", "Psychology", "Sports"],
+    stats: ["55% → 82% hit rate", "3× win size", "10 parallel plays"],
+    description: "A self-described 'mental firmware upgrade' for trading Polymarket as a systematic extraction machine. Covers 10 parallel strategies — from hyper-low-probability snipes and 5-minute BTC windows to resolution rule exploits, whale copy trading, and the AI feedback loop that ties them all together. Each strategy validated against peer-reviewed research and live Polymarket data.",
+    sourceUrl: "https://x.com/BimbaCrypto",
+    sections: [
+      { id: "overview",    label: "Overview",          component: BimbaOverviewTab },
+      { id: "strategies",  label: "10 Strategies",     component: TenStrategiesTab },
+      { id: "validation",  label: "Validation",        component: BimbaValidationTab },
+      { id: "firmware",    label: "Mental Firmware",   component: BimbaMindTab },
+    ],
+  },
+];
+
+// ── ARTICLE CARD ──────────────────────────────────────────────
+function ArticleCard({ article, onOpen }) {
+  const diffColor = ({ BEGINNER: C.accent, INTERMEDIATE: C.amber, ADVANCED: C.red })[article.difficulty] || C.blue;
+  return (
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderLeft: `3px solid ${article.color}`, borderRadius: 6, padding: "22px 24px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 20, alignItems: "start" }}>
+        <div>
+          {/* Meta row */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 9, color: diffColor, ...mono, fontWeight: "bold", padding: "2px 7px", background: diffColor + "18", border: `1px solid ${diffColor}40`, borderRadius: 2 }}>
+              {article.difficulty}
+            </span>
+            <span style={{ fontSize: 10, color: article.color, ...mono }}>{article.author}</span>
+            <span style={{ fontSize: 10, color: C.border }}>·</span>
+            <span style={{ fontSize: 10, color: C.muted, ...mono }}>{article.handle}</span>
+            <span style={{ fontSize: 10, color: C.border }}>·</span>
+            <span style={{ fontSize: 10, color: C.muted, ...mono }}>{article.date}</span>
+          </div>
+
+          {/* Title + subtitle */}
+          <div style={{ fontSize: 16, color: C.text, ...mono, fontWeight: "bold", marginBottom: 4, lineHeight: 1.35 }}>
+            {article.title}
+          </div>
+          <div style={{ fontSize: 11, color: C.muted, ...mono, marginBottom: 14 }}>{article.subtitle}</div>
+
+          {/* Description */}
+          <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.8, marginBottom: 16 }}>{article.description}</div>
+
+          {/* Tags */}
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+            {article.tags.map(tag => (
+              <span key={tag} style={{ fontSize: 9, color: C.blue, ...mono, padding: "2px 8px", background: C.blue + "14", border: `1px solid ${C.blue}28`, borderRadius: 2 }}>
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* Key stats */}
+          <div style={{ display: "flex", gap: 18, flexWrap: "wrap" }}>
+            {article.stats.map((s, i) => (
+              <span key={i} style={{ fontSize: 10, color: article.color, ...mono }}>↗ {s}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: section count + CTA + source */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10, flexShrink: 0 }}>
+          <div style={{ fontSize: 10, color: C.muted, ...mono, textAlign: "right" }}>
+            {article.sections.length} sections
+          </div>
+          <button onClick={() => onOpen(article)} style={{
+            padding: "10px 18px", background: article.color + "20", border: `1px solid ${article.color}`,
+            color: article.color, borderRadius: 4, cursor: "pointer", fontSize: 11, ...mono, fontWeight: "bold", letterSpacing: "0.06em",
+          }}>
+            Open →
+          </button>
+          {article.sourceUrl && (
+            <a href={article.sourceUrl} target="_blank" rel="noreferrer"
+              style={{ fontSize: 9, color: C.muted, ...mono, textDecoration: "none" }}>
+              source ↗
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── LIBRARY HOME ──────────────────────────────────────────────
+function LibraryHome({ articles, onOpen }) {
+  const totalSections = articles.reduce((n, a) => n + a.sections.length, 0);
+  const allTags = [...new Set(articles.flatMap(a => a.tags))];
 
   return (
-    <div style={{ background: C.bg, minHeight: "100vh", ...mono }}>
-      <div style={{ background: C.surface, borderBottom: `1px solid ${C.border}`, padding: "11px 20px", display: "flex", alignItems: "center", gap: 12 }}>
-        <span style={{ color: C.accent, fontSize: 14, fontWeight: "bold" }}>◈</span>
-        <span style={{ color: C.accent, fontSize: 11, letterSpacing: "0.12em" }}>ROHONCHAIN · WORLD CUP QUANT BOT</span>
-        <span style={{ marginLeft: "auto", fontSize: 10, color: C.muted }}>FIFA 2026 · POLYMARKET · SHOCK-RECOVERY STRATEGY</span>
+    <div style={{ maxWidth: 860, margin: "0 auto", padding: "36px 18px" }}>
+      {/* Hero */}
+      <div style={{ marginBottom: 36, paddingBottom: 28, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ fontSize: 10, color: C.muted, ...mono, letterSpacing: "0.16em", marginBottom: 12 }}>QUANT LIBRARY</div>
+        <div style={{ fontSize: 22, color: C.text, ...mono, fontWeight: "bold", lineHeight: 1.35, marginBottom: 14 }}>
+          Systematic edges, broken<br />
+          <span style={{ color: C.accent }}>down to first principles.</span>
+        </div>
+        <div style={{ fontSize: 12, color: C.muted, ...mono, lineHeight: 1.85, maxWidth: 540, marginBottom: 22 }}>
+          Deep interactive breakdowns of quantitative trading strategies, prediction market mathematics, and systematic execution frameworks. Every article ships with diagrams, live demos, working code, and ELI15 plain-English sections.
+        </div>
+        <div style={{ display: "flex", gap: 28, flexWrap: "wrap" }}>
+          {[
+            { value: articles.length, label: articles.length === 1 ? "article" : "articles" },
+            { value: totalSections, label: "total sections" },
+            { value: allTags.length, label: "topics covered" },
+          ].map((m, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+              <span style={{ fontSize: 22, color: C.accent, fontWeight: "bold", ...mono }}>{m.value}</span>
+              <span style={{ fontSize: 11, color: C.muted, ...mono }}>{m.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* Article list */}
+      <div style={{ fontSize: 10, color: C.muted, ...mono, letterSpacing: "0.1em", marginBottom: 14 }}>
+        ALL ARTICLES — {articles.length}
+      </div>
+      <div style={{ display: "grid", gap: 12, marginBottom: 12 }}>
+        {articles.map(article => (
+          <ArticleCard key={article.id} article={article} onOpen={onOpen} />
+        ))}
+      </div>
+
+      {/* Placeholder */}
+      <div style={{ border: `1px dashed ${C.border}`, borderRadius: 6, padding: "20px 24px", display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ width: 3, height: 36, background: C.border, borderRadius: 2, flexShrink: 0 }} />
+        <div>
+          <div style={{ fontSize: 12, color: C.muted, ...mono, marginBottom: 4 }}>More articles in progress</div>
+          <div style={{ fontSize: 10, color: C.border, ...mono }}>Push a new object to ARTICLES[] to publish here — the structure is already wired up.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── ARTICLE VIEW ──────────────────────────────────────────────
+function ArticleView({ article, activeSection, setActiveSection }) {
+  const Section = article.sections[activeSection].component;
+  return (
+    <div>
+      {/* Section tab strip */}
       <div style={{ display: "flex", borderBottom: `1px solid ${C.border}`, background: C.surface, overflowX: "auto" }}>
-        {tabs.map((t, i) => (
-          <button key={i} onClick={() => setTab(i)} style={{ padding: "9px 14px", background: tab === i ? "#0d2030" : "transparent", color: tab === i ? C.accent : C.muted, border: "none", borderBottom: tab === i ? `2px solid ${C.accent}` : "2px solid transparent", cursor: "pointer", fontSize: 10, letterSpacing: "0.08em", whiteSpace: "nowrap", ...mono }}>
-            {t.toUpperCase()}
+        {article.sections.map((sec, i) => (
+          <button key={i} onClick={() => setActiveSection(i)} style={{
+            padding: "9px 14px",
+            background: activeSection === i ? "#0d2030" : "transparent",
+            color: activeSection === i ? article.color : C.muted,
+            border: "none",
+            borderBottom: activeSection === i ? `2px solid ${article.color}` : "2px solid transparent",
+            cursor: "pointer", fontSize: 10, letterSpacing: "0.08em", whiteSpace: "nowrap", ...mono,
+          }}>
+            {sec.label.toUpperCase()}
           </button>
         ))}
       </div>
+      {/* Section content */}
       <div style={{ maxWidth: 860, margin: "0 auto", padding: "22px 18px" }}>
-        {tab === 0 && <OverviewTab />}
-        {tab === 1 && <ShockTab />}
-        {tab === 2 && <ClassifierTab />}
-        {tab === 3 && <DistributionsTab />}
-        {tab === 4 && <LadderTab />}
-        {tab === 5 && <WorkedExampleTab />}
-        {tab === 6 && <MathTab />}
-        {tab === 7 && <ResultsTab />}
-        {tab === 8 && <MathELI15Tab />}
+        <Section />
       </div>
+    </div>
+  );
+}
+
+// ── MAIN ─────────────────────────────────────────────────────
+export default function App() {
+  const [view, setView] = useState("library");
+  const [currentArticle, setCurrentArticle] = useState(null);
+  const [activeSection, setActiveSection] = useState(0);
+
+  function openArticle(article) {
+    setCurrentArticle(article);
+    setActiveSection(0);
+    setView("article");
+  }
+
+  function goHome() {
+    setView("library");
+    setCurrentArticle(null);
+    setActiveSection(0);
+  }
+
+  return (
+    <div style={{ background: C.bg, minHeight: "100vh", ...mono }}>
+      {/* Persistent global header */}
+      <div style={{ background: C.surface, borderBottom: `1px solid ${C.border}`, padding: "11px 20px", display: "flex", alignItems: "center", gap: 10 }}>
+        <button onClick={goHome} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, padding: 0 }}>
+          <span style={{ color: C.accent, fontSize: 14, fontWeight: "bold" }}>◈</span>
+          <span style={{ color: C.accent, fontSize: 11, letterSpacing: "0.12em" }}>QUANT LIBRARY</span>
+        </button>
+        {view === "article" && currentArticle && (
+          <>
+            <span style={{ color: C.border, fontSize: 13 }}>/</span>
+            <span style={{ fontSize: 10, color: C.muted, ...mono, maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {currentArticle.title}
+            </span>
+          </>
+        )}
+        <span style={{ marginLeft: "auto", fontSize: 10, color: C.muted }}>
+          {view === "library"
+            ? `${ARTICLES.length} article${ARTICLES.length !== 1 ? "s" : ""}`
+            : `${currentArticle?.sections.length} sections`}
+        </span>
+      </div>
+
+      {/* Route */}
+      {view === "library" && <LibraryHome articles={ARTICLES} onOpen={openArticle} />}
+      {view === "article" && currentArticle && (
+        <ArticleView
+          article={currentArticle}
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+        />
+      )}
     </div>
   );
 }
