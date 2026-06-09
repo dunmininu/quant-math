@@ -1404,6 +1404,745 @@ function BimbaMindTab() {
   );
 }
 
+// ── ARTICLE 3: QUANTSTART BEGINNER'S GUIDE ───────────────────
+function QSOverviewTab() {
+  const pillars = [
+    { n: "01", t: "Strategy Identification", d: "Find a profitable edge. Mean reversion vs momentum. Choose trading frequency and asset class. Build a sourcing pipeline.", c: C.accent },
+    { n: "02", t: "Strategy Backtesting", d: "Test on historical data. Eliminate look-ahead bias, survivorship bias, and optimisation bias. Measure Sharpe and max drawdown.", c: C.blue },
+    { n: "03", t: "Execution System", d: "Connect to a broker API. Minimise transaction costs: commission + slippage + spread. Automate order placement.", c: C.amber },
+    { n: "04", t: "Risk Management", d: "Size positions with the Kelly Criterion. Manage drawdowns. Build a portfolio of uncorrelated strategies.", c: C.red },
+  ];
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>What quantitative trading actually is</div>
+        <p style={pstyle}>Quantitative trading uses mathematical models, statistical analysis, and algorithmic execution to find and exploit market opportunities. Unlike discretionary trading (human gut feel), quant trading relies on systematic, data-driven strategies. No emotion. No feel. Just math.</p>
+        <p style={pstyle}>QuantStart's foundational guide defines a complete quant trading system as four tightly connected components. Missing any one breaks the entire chain:</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+          {pillars.map((p, i) => (
+            <div key={i} style={{ background: C.code, padding: 14, borderRadius: 6, border: `1px solid ${p.c}28` }}>
+              <div style={{ fontSize: 18, color: p.c, ...mono, fontWeight: "bold", marginBottom: 6 }}>{p.n}</div>
+              <div style={{ fontSize: 12, color: p.c, ...mono, fontWeight: "bold", marginBottom: 6 }}>{p.t}</div>
+              <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.7 }}>{p.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={card}>
+        <div style={h2style}>Honest self-assessment questions</div>
+        <p style={pstyle}>Algo trading is NOT a get-rich-quick scheme. QuantStart is explicit: failing any of these raises your risk of loss significantly:</p>
+        <div style={{ display: "grid", gap: 8 }}>
+          {[
+            { q: "Discipline", d: "Can you not override your algorithm when it is losing? Emotional interference kills systematically profitable strategies." },
+            { q: "Ongoing research", d: "Edges decay — most strategies stop working. Ongoing research is the difference between sustained profitability and slow decline." },
+            { q: "Capital", d: "Recommended minimum: $50k. Transaction costs rapidly eat smaller accounts, especially for mid-to-high frequency strategies." },
+            { q: "Programming", d: "Python, R, or C++ are essential. Python works for LFT. C++ is required for anything approaching HFT execution speeds." },
+          ].map((item, i) => (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "110px 1fr", gap: 12, background: C.code, padding: "10px 14px", borderRadius: 4 }}>
+              <div style={{ fontSize: 11, color: C.blue, ...mono, fontWeight: "bold" }}>{item.q}</div>
+              <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.65 }}>{item.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QSDeepDiveTab() {
+  const [sec, setSec] = useState(0);
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>The 4 pillars — deep dive</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+          {["Strategy ID", "Backtesting", "Execution", "Risk Mgmt & Kelly"].map((s, i) => <Btn key={i} active={sec === i} onClick={() => setSec(i)}>{s}</Btn>)}
+        </div>
+        {sec === 0 && (
+          <div>
+            <div style={h3style}>Strategy identification</div>
+            <p style={pstyle}>The goal is a <em>strategy pipeline</em> — a consistent flow of ideas to evaluate and reject quickly. Two archetypes underlie almost every quant strategy:</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+              {[
+                { n: "Mean Reversion", c: C.accent, d: "Prices that deviate from a long-run mean tend to return. Works at short horizons. Core of pairs trading, stat arb, and spread strategies." },
+                { n: "Momentum", c: C.amber, d: "Assets that moved up tend to keep moving up (1-12 months). Documented robustly across all asset classes since Jegadeesh & Titman (1993)." },
+              ].map((s, i) => (
+                <div key={i} style={{ background: C.code, padding: 12, borderRadius: 6, border: `1px solid ${s.c}28` }}>
+                  <div style={{ fontSize: 12, color: s.c, ...mono, fontWeight: "bold", marginBottom: 6 }}>{s.n}</div>
+                  <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.65 }}>{s.d}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: C.code, padding: 14, borderRadius: 6 }}>
+              <div style={{ fontSize: 10, color: C.blue, ...mono, fontWeight: "bold", marginBottom: 10 }}>Trading frequency spectrum:</div>
+              {[
+                { name: "LFT", hold: "> 1 day", note: "Accessible to retail with Python. Weekly rebalancing. Lower infra requirements." },
+                { name: "HFT", hold: "Intraday", note: "Needs automation. WebSocket + API. Python fine for latency > 100ms." },
+                { name: "UHFT", hold: "μs–ms", note: "C++, FPGA, co-location required. Institutional only." },
+              ].map((f, i) => (
+                <div key={i} style={{ display: "grid", gridTemplateColumns: "60px 70px 1fr", gap: 12, padding: "8px 0", borderBottom: i < 2 ? `1px solid ${C.border}20` : "none", fontSize: 11, ...mono }}>
+                  <span style={{ color: C.blue, fontWeight: "bold" }}>{f.name}</span>
+                  <span style={{ color: C.muted }}>{f.hold}</span>
+                  <span style={{ color: C.muted }}>{f.note}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {sec === 1 && (
+          <div>
+            <div style={h3style}>Strategy backtesting — and its many ways to lie</div>
+            <p style={pstyle}>Backtesting tells you how a strategy would have performed historically. Three biases destroy most backtests:</p>
+            {[
+              { n: "Look-Ahead Bias", c: C.red, d: "Using data that wasn't available at trade time. E.g. using today's closing price to decide what to buy 'at the close'. Your real orders would have executed at unknown prices before the close." },
+              { n: "Survivorship Bias", c: C.amber, d: "Testing only on assets still trading today. Dead companies (bankruptcies) are missing. This pre-selects winners and inflates returns by 1-2%+ per year (Elton, Gruber & Blake, 1996)." },
+              { n: "Optimisation Bias", c: C.red, d: "Trying 1,000 parameter combinations and picking the best. It worked by luck, not skill. Always test on out-of-sample data the model never saw." },
+            ].map((b, i) => (
+              <div key={i} style={{ background: C.code, padding: 12, borderRadius: 6, border: `1px solid ${b.c}30`, marginBottom: 8 }}>
+                <div style={{ fontSize: 12, color: b.c, ...mono, fontWeight: "bold", marginBottom: 6 }}>{b.n}</div>
+                <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.7 }}>{b.d}</div>
+              </div>
+            ))}
+            <div style={{ background: C.code, padding: 14, borderRadius: 6, marginTop: 12 }}>
+              <div style={{ fontSize: 10, color: C.accent, ...mono, fontWeight: "bold", marginBottom: 8 }}>Key performance metrics:</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: 11, ...mono }}>
+                {[
+                  { l: "Sharpe Ratio", v: "(R̄ − Rf) / σ", n: ">1 good. >2 great. >3 suspicious." },
+                  { l: "Max Drawdown", v: "Max peak-to-trough %", n: "Worst-case loss. LFT typically higher than HFT." },
+                  { l: "Sortino Ratio", v: "(R̄ − Rf) / σ_downside", n: "Only penalises downside volatility." },
+                  { l: "Annualised Return", v: "Compound growth rate", n: "Always compare alongside Sharpe — raw return hides risk." },
+                ].map((m, i) => (
+                  <div key={i} style={{ background: "#071018", padding: 10, borderRadius: 4 }}>
+                    <div style={{ color: C.accent, fontWeight: "bold", marginBottom: 3 }}>{m.l}</div>
+                    <div style={{ color: C.blue, marginBottom: 3 }}>{m.v}</div>
+                    <div style={{ color: C.muted, fontSize: 10 }}>{m.n}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {sec === 2 && (
+          <div>
+            <div style={h3style}>Execution systems</div>
+            <p style={pstyle}>A perfect strategy fails with bad execution. Three transaction costs eat your returns:</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 14 }}>
+              {[
+                { n: "Commission", c: C.red, d: "Broker fee per trade. Flat or percentage. Kills high-frequency strategies if not minimised." },
+                { n: "Slippage", c: C.amber, d: "Gap between expected fill and actual. Worse in illiquid markets or with large orders." },
+                { n: "Spread", c: C.amber, d: "Bid-ask spread — the cost of immediacy. Buying at market = paying the spread instantly." },
+              ].map((c, i) => (
+                <div key={i} style={{ background: C.code, padding: 12, borderRadius: 6, border: `1px solid ${c.c}28` }}>
+                  <div style={{ fontSize: 12, color: c.c, ...mono, fontWeight: "bold", marginBottom: 6 }}>{c.n}</div>
+                  <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.65 }}>{c.d}</div>
+                </div>
+              ))}
+            </div>
+            <div style={codestyle}>
+{`Execution interface spectrum:
+  Phone call to broker   → Manual, good for LFT only
+  REST API               → Automated, ~50-100ms
+  WebSocket              → Real-time push feed, <5ms
+  Direct RPC             → Bypass API layer, ~15ms
+  Co-location / FPGA     → Microseconds, institutional
+
+For Polymarket specifically (from Roan's article):
+  Public Polymarket API  → ~50ms (most retail traders)
+  Direct Polygon RPC     → ~15ms (sophisticated systems)
+  Parallel all legs      → Same Polygon block = no slippage gap`}
+            </div>
+          </div>
+        )}
+        {sec === 3 && (
+          <div>
+            <div style={h3style}>Risk management — the Kelly Criterion</div>
+            <p style={pstyle}>Capital sizing is as important as signal quality. The Kelly Criterion finds the exact fraction of capital to bet on each trade to maximise long-term compounded growth while minimising ruin probability.</p>
+            <div style={{ background: C.code, padding: 16, borderRadius: 6, marginBottom: 14 }}>
+              <div style={{ fontSize: 10, color: C.accent, ...mono, fontWeight: "bold", marginBottom: 10 }}>Two forms of the Kelly Criterion:</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+                <div style={{ background: "#071018", padding: 12, borderRadius: 4 }}>
+                  <div style={{ fontSize: 10, color: C.muted, ...mono, marginBottom: 6 }}>BINARY (BETS) — ROAN / BIMBA STYLE</div>
+                  <div style={{ fontSize: 16, color: C.accent, ...mono, fontWeight: "bold", marginBottom: 6 }}>f* = (bp − q) / b</div>
+                  <div style={{ fontSize: 10, color: C.muted, ...mono, lineHeight: 1.6 }}>b = win odds, p = win prob, q = 1−p</div>
+                </div>
+                <div style={{ background: "#071018", padding: 12, borderRadius: 4 }}>
+                  <div style={{ fontSize: 10, color: C.muted, ...mono, marginBottom: 6 }}>CONTINUOUS (STRATEGY) — QUANTSTART STYLE</div>
+                  <div style={{ fontSize: 16, color: C.blue, ...mono, fontWeight: "bold", marginBottom: 6 }}>f* = μ / σ²</div>
+                  <div style={{ fontSize: 10, color: C.muted, ...mono, lineHeight: 1.6 }}>μ = mean excess return, σ² = return variance</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 10, color: C.amber, ...mono, fontWeight: "bold", marginBottom: 8 }}>Long-term compounded growth rate (QuantStart formula):</div>
+              <div style={{ fontSize: 16, color: C.amber, ...mono, textAlign: "center", padding: "6px 0", marginBottom: 10 }}>g = r + S² / 2</div>
+              <div style={{ fontSize: 10, color: C.muted, ...mono }}>r = risk-free rate, S = Sharpe Ratio. Higher Sharpe = faster compound growth.</div>
+            </div>
+            <div style={{ padding: 12, background: C.amber + "0e", border: `1px solid ${C.amber}38`, borderRadius: 6, fontSize: 11, ...mono, lineHeight: 1.7 }}>
+              <span style={{ color: C.amber, fontWeight: "bold" }}>QuantStart warning:</span> Kelly is an upper bound, not a target. Use half-Kelly (f*/2) as a practical ceiling. Non-Gaussian real returns mean full Kelly can send account equity to zero.
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function QSValidationTab() {
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>Validation — is this solid?</div>
+        {[
+          { claim: "Sharpe Ratio as the industry-standard risk-adjusted metric", strength: "VERY STRONG", color: C.accent, ev: "Sharpe (1966) introduced the reward-to-variability ratio. Universally adopted since. Every major fund uses Sharpe as a baseline metric. Limitation: assumes normal returns, violated in practice, but remains the universal benchmark." },
+          { claim: "Mean reversion and momentum as the two fundamental strategy archetypes", strength: "VERY STRONG", color: C.accent, ev: "Jegadeesh & Titman (1993) documented momentum — one of the most cited finance papers. DeBondt & Thaler (1985) documented mean reversion over 3-5 year horizons. Both appear in every major multi-factor model in use today." },
+          { claim: "Survivorship bias inflates historical backtests by 1-2%+ per year", strength: "STRONG", color: C.blue, ev: "Elton, Gruber & Blake (1996) quantified the effect in mutual fund databases. Brown, Goetzmann & Ross (1995) confirmed it in hedge fund data. Standard finding across all empirical finance research." },
+          { claim: "Kelly Criterion as optimal long-term capital growth formula", strength: "STRONG", color: C.blue, ev: "Kelly (1956) Bell Labs paper. Thorp (1969) implemented in blackjack, then bond trading. QuantStart explicitly derives g = r + S²/2 showing compounded growth depends directly on the square of the Sharpe Ratio. MacLean, Thorp & Ziemba (2011) extended to multi-strategy portfolios." },
+        ].map((v, i) => (
+          <div key={i} style={{ background: C.code, padding: 14, borderRadius: 6, border: `1px solid ${v.color}28`, marginBottom: 10 }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 9, color: v.color, ...mono, padding: "2px 7px", background: v.color + "18", border: `1px solid ${v.color}40`, borderRadius: 2 }}>{v.strength}</span>
+            </div>
+            <div style={{ fontSize: 11, color: C.text, ...mono, fontWeight: "bold", marginBottom: 6 }}>{v.claim}</div>
+            <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.7 }}>{v.ev}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function QSELI15Tab() {
+  const [q, setQ] = useState(0);
+  const items = [
+    { t: "Quant Trading", e: "Instead of 'I feel like Bitcoin is going up today', you write a program that looks at historical data and automatically decides when to buy and sell based entirely on math. No emotion allowed. If the algorithm says sell, you sell." },
+    { t: "Backtesting", e: "You cannot test a strategy on the future. So you replay historical prices to see how the strategy would have done. Like a flight simulator — practice without crashing a real plane. The danger: the simulator is not a perfect copy of reality." },
+    { t: "Look-Ahead Bias", e: "Imagine predicting yesterday's lottery using today's newspaper. Obvious cheating. In backtesting, it means accidentally using data your strategy could not have known at the moment of the trade. Very common mistake. Completely destroys the validity of the backtest." },
+    { t: "Sharpe Ratio", e: "Two taxi drivers both earn $10,000/month. Driver A works 100 steady hours. Driver B works 200 chaotic hours. Driver A has a better Sharpe — same income for less volatility. Sharpe = reward per unit of risk." },
+    { t: "Maximum Drawdown", e: "Your account hits $100k then falls to $60k before recovering. Max drawdown = 40%. It answers: what is the worst possible timing someone could have had? Lower MDD = smoother ride for investors." },
+    { t: "Kelly Criterion", e: "Flipping a coin that lands heads 60% of the time, winning $1 each time, losing $1 otherwise. Kelly says bet exactly 20% of your money each flip. Bet more and you eventually go broke despite the edge. Bet less and you grow slower than optimal." },
+    { t: "Mean Reversion", e: "A rubber band. Stretch it further and further from its resting length, it eventually snaps back. Mean reversion strategies bet that stretched prices will snap back to their long-run average." },
+    { t: "Momentum", e: "A boulder rolling downhill keeps rolling, picking up speed. Stocks that have been going up for 6-12 months tend to keep going up next month. Why? Nobody is entirely sure. It works across every market, every decade ever studied." },
+    { t: "Slippage", e: "You see Bitcoin at $50,000 and click buy. By the time your order arrives, it has moved to $50,050. That $50 gap is slippage — the market moved before your order could fill. Worse in illiquid markets and with larger orders." },
+  ];
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>ELI15 — every concept, simply</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
+          {items.map((item, i) => <Btn key={i} active={q === i} onClick={() => setQ(i)}>{item.t}</Btn>)}
+        </div>
+        <div style={{ background: C.code, padding: 20, borderRadius: 8, border: `1px solid ${C.blue}`, minHeight: 100 }}>
+          <div style={{ fontSize: 13, color: C.blue, ...mono, fontWeight: "bold", marginBottom: 12 }}>{items[q].t}</div>
+          <div style={{ fontSize: 13, color: C.text, ...mono, lineHeight: 1.85 }}>{items[q].e}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── ARTICLE 4: ZEN OF QUANT TRADING ──────────────────────────
+function ZenOverviewTab() {
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>The search for structure</div>
+        <p style={pstyle}>Written by IKOS Asset Management ($1.5B quant hedge fund) for The Hedge Fund Journal. Not a tutorial — a philosophy. Central thesis: <span style={{ color: C.accent }}>good algorithmic trading is the search for structure in noisy data.</span></p>
+        <p style={pstyle}>The insight most retail traders miss: markets are approximately random, but they fail tests of perfect randomness in subtle, exploitable ways. A quant's job is finding and trading those failures — knowing they are temporary, regime-dependent, and will eventually close.</p>
+        <div style={{ background: C.code, padding: 14, borderRadius: 6, marginBottom: 16 }}>
+          <div style={{ fontSize: 10, color: C.amber, ...mono, fontWeight: "bold", marginBottom: 10 }}>Three types of structure that actually exist in markets:</div>
+          {[
+            { t: "Serial dependence — GARCH effect", e: "Big moves tend to follow big moves. You cannot predict direction, but you can predict volatility magnitude. Panic and greed leave markets shaken with bursts of volatility.", c: C.accent },
+            { t: "Cross-asset cointegration", e: "Related assets tend to move together over time. Construct a synthetic portfolio that oscillates around a mean — trade the oscillation. The foundation of pairs trading.", c: C.blue },
+            { t: "Factor structure", e: "Stock returns can be decomposed into systematic factors (value, momentum, size). The unexplained residual — idiosyncratic return — is where the edge lives.", c: C.amber },
+          ].map((s, i) => (
+            <div key={i} style={{ padding: "10px 0", borderBottom: i < 2 ? `1px solid ${C.border}30` : "none" }}>
+              <div style={{ fontSize: 12, color: s.c, ...mono, fontWeight: "bold", marginBottom: 4 }}>{s.t}</div>
+              <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.65 }}>{s.e}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          <Stat value="$1.5B" label="IKOS AUM at time of writing" color={C.accent} />
+          <Stat value="70+" label="IKOS quant professionals" color={C.blue} />
+          <Stat value="7" label="Asset classes: equities, FX, commodities, bonds, rates, indices" color={C.amber} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ZenConceptsTab() {
+  const [sec, setSec] = useState(0);
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>Key concepts from the Zen</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+          {["GARCH", "Cointegration", "Fat Tails", "Overfitting", "Portfolio of Models"].map((s, i) => <Btn key={i} active={sec === i} onClick={() => setSec(i)}>{s}</Btn>)}
+        </div>
+        {sec === 0 && (
+          <div>
+            <div style={h3style}>GARCH — volatility clustering</div>
+            <p style={pstyle}>GARCH models volatility clustering: big moves follow big moves. The structure is not in the direction — you cannot predict up vs down. The structure is in the <span style={{ color: C.accent }}>magnitude</span>. During high-volatility regimes, reduce position size.</p>
+            <div style={codestyle}>
+{`GARCH(1,1) — the most common specification:
+  variance_t = w + a * shock_sq_(t-1) + b * variance_(t-1)
+
+  shock_sq_(t-1) = last period's squared return (news)
+  variance_(t-1) = last period's variance (persistence)
+  a + b typically close to 1.0 for financial assets
+
+Interpretation:
+  High a = market reacts strongly to new information
+  High b = variance is persistent (long memory effect)
+  a + b < 1 = variance is mean-reverting (stable model)
+
+IKOS application: use GARCH forecast as a signal for
+onset of volatility. Scale position size DOWN when
+forecast variance is elevated. Not directional — a
+pure risk management tool.`}
+            </div>
+          </div>
+        )}
+        {sec === 1 && (
+          <div>
+            <div style={h3style}>Cointegration — trading a synthetic oscillator</div>
+            <p style={pstyle}>Two assets may each follow random walks individually. But if a linear combination of them is stationary (mean-reverting), they are cointegrated. The spread between them oscillates around a mean — that oscillation is tradeable.</p>
+            <div style={codestyle}>
+{`Classic pairs trading setup (Shell and BP):
+  spread_t = log(Shell_price) - b * log(BP_price)
+
+  If spread is cointegrated:
+    → spread oscillates around a stable mean
+    → spread HIGH: sell Shell, buy BP (Shell overvalued)
+    → spread LOW: buy Shell, sell BP (BP overvalued)
+    → exit when spread reverts to mean
+
+Testing for cointegration:
+  Engle-Granger test: regress X on Y, test residuals
+  Johansen test: handles multiple cointegrating relations
+
+IKOS warning: "markets change, the relationships break
+down, the sine wave starts moving outside its band."
+Always have a stop-loss for structural breaks.`}
+            </div>
+          </div>
+        )}
+        {sec === 2 && (
+          <div>
+            <div style={h3style}>Fat tails — the market is not normal</div>
+            <p style={pstyle}>The Gaussian bell curve predicts extreme 5-sigma events almost never happen. In real financial markets they happen far more often. IKOS: <em>"Be prepared for tail risk — that rare but catastrophic event accounting for the fat tails in returns."</em></p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              {[
+                { l: "Normal model predicts", v: "5-sigma event once every ~6,700 years", c: C.muted },
+                { l: "Real markets experience", v: "Major crisis roughly every 10-20 years. Fat tails are documented fact.", c: C.red },
+                { l: "Practical implication", v: "Never use plain VaR without fat-tail adjustments. Models fitting normal distributions systematically underestimate extreme losses.", c: C.amber },
+                { l: "IKOS response", v: "Deleveraging, stop-outs, position limits, tail hedges. Risk management is integral to every good quant model.", c: C.accent },
+              ].map((m, i) => (
+                <div key={i} style={{ background: C.code, padding: 12, borderRadius: 4, border: `1px solid ${m.c}28` }}>
+                  <div style={{ fontSize: 10, color: m.c, ...mono, marginBottom: 6 }}>{m.l}</div>
+                  <div style={{ fontSize: 11, color: C.text, ...mono, lineHeight: 1.6 }}>{m.v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {sec === 3 && (
+          <div>
+            <div style={h3style}>Overfitting — the bane of modellers</div>
+            <p style={pstyle}>Overfitting occurs when a model is tuned to historical data so precisely that it memorises noise rather than learning genuine structure. IKOS: <em>"Over-parametrisation is the bane of many a model. The more knobs and switches, the more tempting to use them until you have no clear understanding of the source of P&L."</em></p>
+            <div style={codestyle}>
+{`Signs you have overfit:
+  1. Backtest Sharpe > 3.0 (suspicious threshold)
+  2. Strategy parameters oddly specific (e.g. exit after 17.3 mins)
+  3. Performance collapses immediately in live trading
+  4. Works only on specific date ranges
+
+Protections:
+  Walk-forward testing: train on first 70%, test on last 30%
+  Out-of-sample holdout: never touch until final validation
+  Simplicity: fewer parameters = less overfit risk
+
+The uncomfortable truth:
+  Bailey et al. (2014) showed most backtested strategies
+  are statistically expected to be false discoveries.
+  Many 'successful' backtests are pure noise-fitting.`}
+            </div>
+          </div>
+        )}
+        {sec === 4 && (
+          <div>
+            <div style={h3style}>Portfolio of models — how real hedge funds think</div>
+            <p style={pstyle}>One good model does not make a hedge fund. IKOS explicitly runs a portfolio of models covering all asset classes, multiple holding periods, and multiple strategy types — chosen for low inter-model correlation.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+              {[
+                { d: "By frequency", e: "HFT + daily + weekly models. Each reacts to different market regimes. Drawdowns compensate each other." },
+                { d: "By strategy type", e: "Momentum + mean reversion + carry + factor. Anti-correlated during regime changes." },
+                { d: "By asset class", e: "Equities + FX + commodities + bonds. Geographic crises affect each differently." },
+                { d: "The math payoff", e: "Two Sharpe-1.0 strategies with correlation 0 → combined Sharpe = sqrt(2) ≈ 1.41. Diversification is free risk reduction." },
+              ].map((d, i) => (
+                <div key={i} style={{ background: C.code, padding: 12, borderRadius: 6, border: `1px solid ${C.border}` }}>
+                  <div style={{ fontSize: 11, color: C.blue, ...mono, fontWeight: "bold", marginBottom: 4 }}>{d.d}</div>
+                  <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.65 }}>{d.e}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ZenValidationTab() {
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>Validation</div>
+        {[
+          { claim: "GARCH models capture volatility clustering", strength: "VERY STRONG", color: C.accent, ev: "Engle (1982) introduced ARCH — Nobel Prize 2003. Bollerslev (1986) extended to GARCH. Thousands of papers validate this across equities, FX, and commodities. Volatility clustering is one of the most robustly documented phenomena in quantitative finance." },
+          { claim: "Cointegration enables mean-reverting spread construction", strength: "STRONG", color: C.blue, ev: "Engle & Granger (1987) established cointegration theory — Nobel Prize 2003. Gatev, Goetzmann & Rouwenhorst (2006, RFS) documented pairs trading profitability across 50+ years of US equity data. Edge has declined with more capital targeting it, but the mechanism is genuine." },
+          { claim: "Financial returns have fat tails (leptokurtosis)", strength: "VERY STRONG", color: C.accent, ev: "Mandelbrot (1963) documented fat tails in cotton prices. Fama (1965) confirmed for stocks. Taleb's systematic treatment in The Black Swan (2007). Now a basic, undisputed empirical fact of financial return distributions." },
+          { claim: "Overfitting causes backtest results to collapse in live trading", strength: "STRONG", color: C.blue, ev: "Bailey, Borwein, Lopez de Prado & Zhu (2014) formalised the mathematics of backtest overfitting. Harvey, Liu & Zhu (2016) showed most published financial factors are likely false discoveries from multiple testing. Standard problem in systematic strategy research." },
+        ].map((v, i) => (
+          <div key={i} style={{ background: C.code, padding: 14, borderRadius: 6, border: `1px solid ${v.color}28`, marginBottom: 10 }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 9, color: v.color, ...mono, padding: "2px 7px", background: v.color + "18", border: `1px solid ${v.color}40`, borderRadius: 2 }}>{v.strength}</span>
+            </div>
+            <div style={{ fontSize: 11, color: C.text, ...mono, fontWeight: "bold", marginBottom: 6 }}>{v.claim}</div>
+            <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.7 }}>{v.ev}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ZenELI15Tab() {
+  const [q, setQ] = useState(0);
+  const items = [
+    { t: "GARCH / Volatility Clustering", e: "Imagine someone scared and breathing fast. Then they breathe fast the next minute, and the next. That is volatility clustering — being volatile in one period makes you likely to be volatile in the next. GARCH models this so you can predict when to reduce your position size, even when you cannot predict direction." },
+    { t: "Cointegration", e: "Shell and BP both drill for oil. Their stock prices wander randomly — but they wander together. If Shell suddenly costs much more than BP relative to history, bet they snap back to their usual relationship. Cointegration is the mathematical proof that the snap will happen, on average." },
+    { t: "Fat Tails", e: "Normal bell curves say market crashes should happen less than once per thousand years. Real markets have major crashes every 10-20 years. The distribution of returns has much fatter tails than the model predicts. Any model that ignores this blows up catastrophically in a crisis." },
+    { t: "Overfitting", e: "You study exactly the 50 questions from last year's exam — word for word. Score 100% on that exam, 0% on this year's different questions. Overfitting is learning last year's noise instead of the underlying pattern. Your strategy worked only because you memorised historical luck, not because you found an edge." },
+    { t: "Alpha vs Beta", e: "Beta is the return you get just for owning the market — anyone can get this by buying an index fund. Alpha is the extra return from skill. Most strategies claiming alpha are actually just leveraged beta in disguise. True alpha is rare, expensive to extract, and decays as more capital targets it." },
+    { t: "Carry Trade", e: "Borrow money in Japan at 0.1% interest. Invest it in Australia at 4% interest. Pocket the 3.9% difference every year. Works beautifully for years and years. Then the Yen suddenly surges and you lose everything in one day. That is the carry crash IKOS references — why tail risk management matters even when things feel stable." },
+    { t: "Non-Stationarity", e: "A stationary time series has stable statistical properties over time. Financial prices are NOT stationary — they trend, crash, and fundamentally change behaviour. This is why strategies that worked in the 1990s often fail in the 2020s. The market is not the same animal it was." },
+    { t: "Portfolio of Models", e: "Ten traders all making the same bet: one bad event wipes everyone out. But if each specialises in different uncorrelated strategies, one strategy's bad day is covered by another's good day. The combined Sharpe is higher than any individual strategy. Diversification is literally free risk reduction." },
+  ];
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>ELI15 — the Zen, simply</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
+          {items.map((item, i) => <Btn key={i} active={q === i} onClick={() => setQ(i)}>{item.t}</Btn>)}
+        </div>
+        <div style={{ background: C.code, padding: 20, borderRadius: 8, border: "1px solid #7c3aed", minHeight: 100 }}>
+          <div style={{ fontSize: 13, color: "#7c3aed", ...mono, fontWeight: "bold", marginBottom: 12 }}>{items[q].t}</div>
+          <div style={{ fontSize: 13, color: C.text, ...mono, lineHeight: 1.85 }}>{items[q].e}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── ARTICLE 5: 9 QUANT STRATEGIES 2026 (QUANTT) ─────────────
+const NINE_STRATS = [
+  { n: 1, name: "Statistical Arbitrage",     holding: "Hours–Days",   edge: "Mean reversion of correlated assets",           sharpe: "1.0–2.0",   firms: "Citadel, Two Sigma",           approach: "Cointegration + z-score on spread. Enter when spread deviates beyond 2 std devs, exit at normalisation. Requires Engle-Granger or Johansen cointegration test." },
+  { n: 2, name: "Pairs Trading",             holding: "Days–Weeks",   edge: "Cointegration + relative-value reversion",       sharpe: "0.8–1.5",   firms: "Quant hedge funds, prop desks", approach: "Model spread as Ornstein-Uhlenbeck process. Entry on z > 2. Exit at z = 0. Always carry a stop-loss for structural breaks — cointegration can fail permanently." },
+  { n: 3, name: "Market Making",             holding: "ms–Seconds",   edge: "Bid-ask spread + inventory management",          sharpe: "3.0–8.0+",  firms: "Optiver, IMC, Jane Street",    approach: "Quote two-sided markets. Earn spread when both sides fill. Manage inventory to avoid directional exposure. Avellaneda-Stoikov model for optimal quotes." },
+  { n: 4, name: "Momentum / Trend Follow",   holding: "Weeks–Months", edge: "Persistence of price moves across asset classes", sharpe: "0.5–1.0",   firms: "AHL, Winton, Millburn",        approach: "Go long recent winners, short recent losers. Time-series or cross-sectional momentum. Most robust and well-documented anomaly across all asset classes." },
+  { n: 5, name: "Mean Reversion (Equity)",   holding: "Days",         edge: "Short-term overreaction reversal",               sharpe: "0.6–1.2",   firms: "Prop desks, stat arb teams",   approach: "Bollinger Bands or z-score on prices. Order book imbalance signals. Fade extreme overnight gaps at the open. Mean reversion and momentum are not contradictory — different time horizons." },
+  { n: 6, name: "Machine Learning Alpha",    holding: "Days–Weeks",   edge: "Pattern detection + feature engineering",         sharpe: "0.5–1.5",   firms: "D.E. Shaw, Two Sigma, Acadian", approach: "Supervised learning on price and alternative data. Walk-forward testing is non-negotiable. Regime detection as a sub-strategy. Gu, Kelly & Xiu (2020) validated the approach academically." },
+  { n: 7, name: "Options Volatility",        holding: "Days–Weeks",   edge: "Implied vs realised vol mispricings",             sharpe: "0.8–2.0",   firms: "Susquehanna (SIG), Wolverine", approach: "Trade vol surface mispricings and skew. Core tools: Black-Scholes Greeks, GARCH forecasts, realised vol computation. Implied volatility systematically overstates realised vol." },
+  { n: 8, name: "High-Frequency Trading",   holding: "Microseconds",  edge: "Latency advantage + microstructure exploitation", sharpe: "5.0–20.0+", firms: "Virtu Financial, Jump Trading",  approach: "Co-location, FPGA hardware, kernel bypass networking. Strategies: latency arbitrage, market making, order anticipation. Requires direct exchange connectivity and C++ infrastructure." },
+  { n: 9, name: "Crypto Quant",             holding: "Variable",      edge: "Funding rates, basis, on-chain inefficiencies",  sharpe: "1.0–3.0+",  firms: "Wintermute, Jump Crypto, GSR", approach: "Perpetual funding rate arbitrage, spot-futures basis, cross-exchange stat arb, on-chain data signals. Crypto markets remain structurally less efficient than TradFi." },
+];
+
+function NineOverviewTab() {
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>9 quant strategies that actually work in 2026</div>
+        <p style={pstyle}>Quantt's comprehensive 2026 guide covers every major systematic trading strategy with realistic Sharpe ratios, edge sources, and which institutional firms run them. Not aspirational — this is what professional quants actually do.</p>
+        <div style={{ overflowX: "auto", marginBottom: 14 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10, ...mono }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+                {["#", "Strategy", "Hold", "Edge Source", "Sharpe"].map(h => (
+                  <th key={h} style={{ padding: "7px 10px", color: C.muted, textAlign: "left", fontWeight: "normal", whiteSpace: "nowrap" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {NINE_STRATS.map((s, i) => {
+                const sp = parseFloat(s.sharpe);
+                const sc = sp >= 3 ? C.accent : sp >= 1 ? C.blue : C.amber;
+                return (
+                  <tr key={i} style={{ borderBottom: `1px solid ${C.border}18` }}>
+                    <td style={{ padding: "7px 10px", color: C.muted }}>{s.n}</td>
+                    <td style={{ padding: "7px 10px", color: C.text, fontWeight: "bold" }}>{s.name}</td>
+                    <td style={{ padding: "7px 10px", color: C.muted, whiteSpace: "nowrap" }}>{s.holding}</td>
+                    <td style={{ padding: "7px 10px", color: C.muted }}>{s.edge}</td>
+                    <td style={{ padding: "7px 10px", color: sc, fontWeight: "bold" }}>{s.sharpe}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div style={{ padding: 14, background: C.red + "0e", border: `1px solid ${C.red}38`, borderRadius: 6, fontSize: 11, ...mono, lineHeight: 1.8 }}>
+          <span style={{ color: C.red, fontWeight: "bold" }}>Sharpe reality check:</span> Backtest Sharpe above 3.0 should trigger immediate suspicion of methodology errors. Market Making and HFT's very high Sharpes reflect aggressive leverage on tiny per-trade edges at extreme frequency — not accessible to retail traders without institutional infrastructure.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NineStrategiesTab() {
+  const [active, setActive] = useState(0);
+  const s = NINE_STRATS[active];
+  const sp = parseFloat(s.sharpe);
+  const sc = sp >= 3 ? C.accent : sp >= 1 ? C.blue : C.amber;
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>Strategy explorer</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, marginBottom: 16 }}>
+          {NINE_STRATS.map((str, i) => (
+            <button key={i} onClick={() => setActive(i)} style={{
+              padding: "9px 6px", background: active === i ? C.red + "18" : C.code,
+              border: `1px solid ${active === i ? C.red : C.border}`,
+              color: active === i ? C.red : C.muted, borderRadius: 4, cursor: "pointer", fontSize: 9, ...mono, textAlign: "left",
+            }}>
+              <div style={{ fontWeight: "bold", marginBottom: 2 }}>#{str.n}</div>
+              <div style={{ fontSize: 8, lineHeight: 1.3 }}>{str.name.split(" ").slice(0, 2).join(" ")}</div>
+            </button>
+          ))}
+        </div>
+        <div style={{ background: C.code, border: `1px solid ${C.red}`, borderRadius: 8, padding: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <div style={{ fontSize: 22, color: C.red, ...mono, fontWeight: "bold" }}>#{s.n}</div>
+            <div>
+              <div style={{ fontSize: 14, color: C.red, ...mono, fontWeight: "bold" }}>{s.name}</div>
+              <div style={{ fontSize: 10, color: C.muted, ...mono }}>{s.holding}</div>
+            </div>
+            <div style={{ marginLeft: "auto", textAlign: "right" }}>
+              <div style={{ fontSize: 16, color: sc, ...mono, fontWeight: "bold" }}>{s.sharpe}</div>
+              <div style={{ fontSize: 9, color: C.muted, ...mono }}>Sharpe</div>
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+            {[{ l: "Edge source", v: s.edge }, { l: "Key firms", v: s.firms }].map((m, i) => (
+              <div key={i} style={{ background: "#071018", padding: 10, borderRadius: 4 }}>
+                <div style={{ fontSize: 9, color: C.muted, ...mono, marginBottom: 4 }}>{m.l.toUpperCase()}</div>
+                <div style={{ fontSize: 11, color: C.text, ...mono, lineHeight: 1.6 }}>{m.v}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ padding: "12px 14px", background: "#071018", borderRadius: 4, borderLeft: `2px solid ${C.red}` }}>
+            <div style={{ fontSize: 9, color: C.muted, ...mono, marginBottom: 6 }}>APPROACH</div>
+            <div style={{ fontSize: 12, color: C.text, ...mono, lineHeight: 1.8 }}>{s.approach}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NineValidationTab() {
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>Validation</div>
+        {[
+          { s: "Statistical Arb & Pairs Trading", str: "STRONG", c: C.blue, e: "Gatev, Goetzmann & Rouwenhorst (2006, Review of Financial Studies) documented pairs trading profitability across 50+ years of US equity data. Cointegration theory: Engle & Granger (1987), Nobel 2003. Profitability has compressed as more capital entered the strategy, but the mechanism is structurally real." },
+          { s: "Market Making", str: "VERY STRONG", c: C.accent, e: "Theoretical foundations: Avellaneda & Stoikov (2008) optimal market making model. Glosten & Milgrom (1985) adverse selection. Empirically: Citadel Securities processes ~25% of US retail equity volume. Market makers on Polymarket earned $20M+ in 2024 (DeFi Prime, 2026). The spread capture edge is structural." },
+          { s: "Momentum / Trend Following", str: "VERY STRONG", c: C.accent, e: "Jegadeesh & Titman (1993) — most cited finance paper on momentum in equities. Asness, Moskowitz & Pedersen (2013) documented momentum across 8 asset classes over 40+ years. AHL, Winton, Millburn manage billions in pure trend following. Most robust anomaly in academic finance literature." },
+          { s: "Machine Learning Alpha", str: "MODERATE", c: C.amber, e: "Gu, Kelly & Xiu (2020, Review of Financial Studies) showed ML models outperform linear factor models in equity return prediction. Actively debated — some argue much ML alpha is overfitting or uncompensated tail risk. Walk-forward testing with held-out data is non-negotiable." },
+          { s: "Crypto Quant (Funding Rates)", str: "STRONG", c: C.blue, e: "Perpetual futures funding rates documented as a persistent edge across multiple academic and practitioner studies. Cross-exchange stat arb applies proven equity techniques to a structurally less efficient market. Polymarket ecosystem at $44B volume in 2025 (DeFi Prime) confirms scale of institutional crypto quant activity." },
+        ].map((v, i) => (
+          <div key={i} style={{ background: C.code, padding: 14, borderRadius: 6, border: `1px solid ${v.c}28`, marginBottom: 10 }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 9, color: v.c, ...mono, padding: "2px 7px", background: v.c + "18", border: `1px solid ${v.c}40`, borderRadius: 2 }}>{v.str}</span>
+              <div style={{ fontSize: 11, color: v.c, ...mono, fontWeight: "bold" }}>{v.s}</div>
+            </div>
+            <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.7 }}>{v.e}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function NineELI15Tab() {
+  const [q, setQ] = useState(0);
+  const items = [
+    { t: "Statistical Arbitrage", e: "Two stocks usually move together because they share a common driver (like Shell and BP both tracking oil prices). If they suddenly diverge — Shell expensive, BP cheap relative to history — bet they snap back together. Statistical arbitrage is using maths to precisely measure when 'diverged' is unusual enough to trade." },
+    { t: "Market Making", e: "You stand in a market and shout: I will buy gold for $999 or sell it for $1,001. Anyone who urgently needs to buy or sell takes your offer. You pocket $2 spread over and over, millions of times a day. The risk: if gold suddenly crashes, the inventory of gold you're holding is now worth less than you paid for it." },
+    { t: "Momentum", e: "A train moving fast tends to keep moving fast. Stocks that have been going up for the past 6-12 months tend to continue going up next month. Nobody knows exactly why — possibly slow information diffusion or institutional herding. It works across every asset class, every decade ever studied." },
+    { t: "Mean Reversion", e: "Everything has a normal level. Pull a spring down, it snaps back up. Push it up, it snaps back down. Mean reversion bets that prices stretched too far from their average will snap back. Works at short timeframes. Momentum works at long timeframes. Both can be correct simultaneously." },
+    { t: "Machine Learning Trading", e: "You give a computer thousands of examples: here is what the market looked like, here is what the price did next. The computer finds patterns too subtle for humans to notice. The danger: it might be learning patterns that were pure luck in the past and will not repeat in the future. Walk-forward testing is your only protection." },
+    { t: "Options Volatility", e: "An option's price depends on how volatile the market expects an asset to be. If the market thinks Apple will be very volatile over the next month (high implied volatility) but you think it won't be (low realised volatility), you sell expensive options and profit if you are right. The edge: implied vol historically overstates realised vol." },
+    { t: "HFT", e: "Two traders both want to buy the same stock. Whoever sends their order 0.00001 seconds faster wins. HFT firms spend millions on faster computers, shorter cables, and servers physically located inside exchange data centres — just to win this race by microseconds. The edge is latency, not prediction." },
+    { t: "Crypto Funding Rates", e: "On crypto exchanges you can bet on Bitcoin's future price without owning Bitcoin. To keep these perpetual futures prices aligned with the real price, a funding rate is paid between long and short traders every 8 hours. When funding is very high, shorts effectively earn a yield just by holding their position against longs." },
+    { t: "Sharpe Reality Check", e: "A backtest Sharpe of 2.0 is genuinely excellent. Most retail strategies manage 0.5 to 1.0. Anything above 3.0 in a backtest almost certainly has look-ahead bias, survivorship bias, or overfitting. Real-world live Sharpe is almost always lower than the backtest figure — sometimes dramatically lower." },
+  ];
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>ELI15 — all 9 strategies, simply</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
+          {items.map((item, i) => <Btn key={i} active={q === i} onClick={() => setQ(i)}>{item.t}</Btn>)}
+        </div>
+        <div style={{ background: C.code, padding: 20, borderRadius: 8, border: `1px solid ${C.red}`, minHeight: 100 }}>
+          <div style={{ fontSize: 13, color: C.red, ...mono, fontWeight: "bold", marginBottom: 12 }}>{items[q].t}</div>
+          <div style={{ fontSize: 13, color: C.text, ...mono, lineHeight: 1.85 }}>{items[q].e}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── GLOSSARY DATA ─────────────────────────────────────────────
+const GLOSSARY_ENTRIES = [
+  { sym: "α", name: "Alpha", cat: "greek", def: "Excess return above the market benchmark", eli: "Market returned 10%, your strategy returned 15% — your alpha is 5%. It is the bonus return from skill above what the market gave everyone for free. Most strategies claiming alpha are actually leveraged beta in disguise." },
+  { sym: "β", name: "Beta", cat: "greek", def: "Sensitivity of an asset to market movements", eli: "β=1 means you move exactly with the market. β=2 means a 10% market drop causes a 20% drop in your portfolio. β=0 means completely uncorrelated. Market-neutral strategies target β≈0." },
+  { sym: "σ", name: "Sigma (lowercase)", cat: "greek", def: "Standard deviation — measure of spread and volatility", eli: "How wild the swings are. σ=5% is calm. σ=30% is chaotic. In Black-Scholes, σ is the key unknown — the implied volatility traders estimate and dispute." },
+  { sym: "μ", name: "Mu", cat: "greek", def: "Mean / expected value of a distribution", eli: "The average. If trades return 5¢, 7¢, 3¢, 9¢ the μ = 6¢. The drift term μ in Geometric Brownian Motion is the average direction a price tends to move over time." },
+  { sym: "λ", name: "Lambda", cat: "greek", def: "Rate parameter in Poisson processes and exponential decay", eli: "If λ=2 shocks per minute, you expect 2 price shocks per minute on average. Describes how often rare events happen — used in HFT to model order arrival rates." },
+  { sym: "ε", name: "Epsilon", cat: "greek", def: "Error term / residual in regression models", eli: "The noise your model cannot explain. You want ε to be random (white noise), not patterned. Patterned residuals mean your model is systematically missing something important." },
+  { sym: "γ", name: "Gamma", cat: "greek", def: "Rate of change of Delta with respect to the underlying price", eli: "Delta tells you how an option price moves per $1 stock move. Gamma tells you how fast delta itself changes. High gamma = delta unstable = risky for market makers holding large option books." },
+  { sym: "Δ", name: "Delta", cat: "greek", def: "Change in option price per $1 change in the underlying asset", eli: "A call with Δ=0.5 gains $0.50 when the stock rises $1. Deep in-the-money options: Δ≈1. Far out-of-the-money options: Δ≈0. Also used as a unit: being long 500 deltas means exposure equivalent to owning 500 shares." },
+  { sym: "θ", name: "Theta", cat: "greek", def: "Rate of option time decay per day", eli: "Options get cheaper every day just from the passage of time, all else equal. θ=−5 means the option loses $5 in value per day. Option sellers collect theta. Option buyers fight it. Decay accelerates approaching expiry." },
+  { sym: "ρ", name: "Rho", cat: "greek", def: "Correlation coefficient / options interest rate sensitivity", eli: "ρ=1 means perfect lockstep movement. ρ=−1 means perfect opposites. ρ=0 means no relationship. Diversification works because portfolio assets rarely have ρ=1 — the combined volatility is less than the sum of parts." },
+  { sym: "Σ", name: "Sigma (capital)", cat: "math", def: "Summation — add all terms in a series", eli: "Σᵢ xᵢ = x₁ + x₂ + x₃ + ... Just shorthand for add up all of these. Appears in expected value, variance, Sharpe ratio — almost every formula in quantitative finance." },
+  { sym: "∂", name: "Partial Derivative", cat: "math", def: "Rate of change with respect to one variable while others are held constant", eli: "In Black-Scholes, ∂C/∂S is Delta — how the option price changes when the stock price changes (holding time, volatility, etc. constant). The Greeks are all partial derivatives of the option price formula." },
+  { sym: "∫", name: "Integral", cat: "math", def: "Continuous summation — the area under a curve", eli: "Used in continuous-time finance to sum infinitely many infinitely small steps. The probability that a stock price ends below $100 is the integral of the price distribution from 0 to 100." },
+  { sym: "E[X]", name: "Expected Value", cat: "stats", def: "Average outcome over many independent trials", eli: "Trade makes $10 with 60% chance and loses $5 with 40% chance: E[X] = 0.6×10 + 0.4×(−5) = $4. That is your average profit per trade over thousands of executions. The foundation of Kelly Criterion sizing." },
+  { sym: "Var(X)", name: "Variance", cat: "stats", def: "Average squared deviation from the mean", eli: "Var=0 means all outcomes identical. Large Var means highly unpredictable results. σ=√Var is more intuitive because it is in the same units as X. Portfolio diversification reduces the combined Var below the sum of individual variances." },
+  { sym: "Cov(X,Y)", name: "Covariance", cat: "stats", def: "How two variables move together", eli: "Positive Cov: when X rises, Y tends to rise. Negative Cov: they tend to move in opposite directions. Divide by σ_X × σ_Y to get the correlation ρ, bounded between −1 and +1." },
+  { sym: "P(A|B)", name: "Conditional Probability", cat: "stats", def: "Probability of A given that B has already occurred", eli: "P(rain | dark clouds) is higher than P(rain) unconditionally. In Roan's shock strategy: P(price recovers | shock > 15%) — conditioning on the shock having already occurred is the entire edge." },
+  { sym: "N(μ,σ²)", name: "Normal Distribution", cat: "stats", def: "Bell curve with mean μ and variance σ²", eli: "Most outcomes cluster around the centre μ. Rare outcomes in the tails. Financial returns are approximately normal but with far fatter tails in reality — the basis of the fat tail problem that GARCH and the Zen article address." },
+  { sym: "iid", name: "Independent & Identically Distributed", cat: "stats", def: "Each observation is a fresh independent draw from the same distribution", eli: "If BTC 5-minute windows are iid, yesterday has zero influence on today. Required for the Law of Large Numbers to work — which is the foundation of Bimba's 300-windows-per-day strategy having a valid statistical edge." },
+  { sym: "CLT", name: "Central Limit Theorem", cat: "stats", def: "Average of many iid variables approaches a normal distribution regardless of underlying distribution", eli: "Flip a biased coin 1,000 times. The average number of heads will be approximately normally distributed even if individual flips are not. This is why enough trades turns edge into reliable, predictable income." },
+  { sym: "Sharpe", name: "Sharpe Ratio", cat: "finance", def: "(R̄ − Rf) / σR — excess return per unit of volatility", eli: "How much extra return you earn per unit of risk. Above 1 is good. Above 2 is great. Above 3 in a backtest means check for bias. Negative means losing money while taking risk. The universal fund performance benchmark." },
+  { sym: "Sortino", name: "Sortino Ratio", cat: "finance", def: "(R̄ − Rf) / σ_downside — only penalises downside volatility", eli: "Better than Sharpe for asymmetric strategies. If your wins are occasionally large but losses are small and consistent, Sortino credits this properly. Sharpe unfairly penalises upside spikes." },
+  { sym: "MDD", name: "Maximum Drawdown", cat: "finance", def: "Largest peak-to-trough % decline in portfolio value", eli: "Account hits $100k, drops to $60k, then recovers → MDD = 40%. It is the worst possible outcome for someone who invested at the peak and sold at the trough. Lower MDD = smoother ride for investors." },
+  { sym: "PnL", name: "Profit and Loss", cat: "finance", def: "Actual money made or lost on trades", eli: "Buy at 30¢, sell at 40¢ → PnL = +10¢. Buy at 30¢, sell at 20¢ → PnL = −10¢. Running PnL total = your equity curve. Roan's exit target in the World Cup strategy = +4¢ from the fill price." },
+  { sym: "VWAP", name: "Volume Weighted Average Price", cat: "finance", def: "Average price weighted by trade volume at each level", eli: "1,000 shares traded at $10 and 100 shares at $11 → VWAP = $10.09. More weight to prices where more trading occurred. HFT benchmark: did we beat VWAP? Used as a standard execution quality measure." },
+  { sym: "LOB / CLOB", name: "Limit Order Book / Central Limit Order Book", cat: "finance", def: "Queue of all pending buy and sell orders at each price level", eli: "Left side: buyers willing to pay 30¢, 29¢, 28¢. Right side: sellers asking 31¢, 32¢, 33¢. The gap between best bid and best ask is the spread. Market orders consume the nearest limit orders immediately." },
+  { sym: "Rf", name: "Risk-Free Rate", cat: "finance", def: "Return on a zero-risk investment (typically 3-month US T-bills)", eli: "The baseline you compare everything against. If the risk-free rate is 5% and your strategy returns 5%, you earned nothing extra for taking risk. Every strategy must beat Rf to justify its existence." },
+  { sym: "AUM", name: "Assets Under Management", cat: "finance", def: "Total market value of assets managed by a fund", eli: "Renaissance Technologies AUM ≈ $130B. A starting quant fund might manage $5M. Bigger AUM means strategies must be adapted for market impact — what works at $1M often breaks at $1B." },
+  { sym: "HFT / LFT", name: "High / Low Frequency Trading", cat: "finance", def: "Classification of trading by holding period and execution speed", eli: "HFT = milliseconds to minutes — needs co-location, FPGA, C++. LFT = days to months — accessible to retail traders with Python. Different infra requirements, Sharpe profiles, and edge sources." },
+  { sym: "f*=(bp−q)/b", name: "Kelly Criterion (Binary)", cat: "formula", def: "Optimal fraction of capital to bet on a positive-edge binary trade", eli: "b = win odds, p = win probability, q = 1−p. 60% win chance, 2:1 odds → f* = (2×0.6−0.4)/2 = 40%. Most practitioners use half-Kelly (20%) to account for edge estimation errors. Over-Kelly causes ruin even with a positive edge." },
+  { sym: "f*=μ/σ²", name: "Kelly Criterion (Continuous)", cat: "formula", def: "Optimal fraction of capital to allocate to a continuous return strategy", eli: "μ = mean excess return, σ² = variance of returns. Used for strategy-level sizing rather than bet-level sizing. The growth rate formula g = r + S²/2 (from QuantStart) shows compounded growth depends directly on the square of the Sharpe ratio." },
+  { sym: "S=(R̄−Rf)/σ", name: "Sharpe Ratio Formula", cat: "formula", def: "Risk-adjusted return: excess return divided by standard deviation", eli: "R̄=15%, Rf=5%, σ=10% → Sharpe=1.0. Same 15% return with σ=5% → Sharpe=2.0. Same return, smoother ride = better Sharpe. Answers: how much risk did you take to earn this return?" },
+  { sym: "D(μ||θ)=Σμln(μ/θ)", name: "KL Divergence (Bregman)", cat: "formula", def: "Information-theoretic distance between two probability distributions", eli: "Used in Roan's Polymarket arbitrage article. Measures how wrong current market prices (θ) are compared to fair prices (μ). Zero = perfectly fair. Large value = large guaranteed arbitrage profit available. The correct distance metric for probability distributions." },
+  { sym: "dS=μSdt+σSdW", name: "Geometric Brownian Motion", cat: "formula", def: "Standard stochastic model for asset price evolution", eli: "Asset price drifts upward at rate μ while experiencing random shocks σ·dW. This is what Black-Scholes assumes. The randomness is why you cannot predict individual prices — but the structure of the randomness is what GARCH exploits." },
+  { sym: "z=(x−μ)/σ", name: "Z-Score", cat: "formula", def: "Number of standard deviations a value is from its mean", eli: "z=2 means unusually high but not extreme. z=3 is very rare. In pairs trading, enter when z > 2 (spread unusually stretched) and exit at z = 0. In Roan's strategy, the shock detector is essentially checking that the z-score of the price drop is extreme enough to warrant an entry." },
+  { sym: "C=SN(d₁)−Ke^(−rT)N(d₂)", name: "Black-Scholes Call Price", cat: "formula", def: "Fair value formula for a European call option", eli: "C = call price. S = stock price now. K = strike price. T = time to expiry. r = risk-free rate. N(d) = cumulative normal probability. Every variable is observable except σ (volatility). So traders back-solve for σ from observed option prices — that is implied volatility." },
+];
+
+// ── GLOSSARY COMPONENTS ───────────────────────────────────────
+function GlossaryHomeTab() {
+  const [query, setQuery] = useState("");
+  const [catF, setCatF] = useState("all");
+  const catColors = { greek: C.blue, math: "#a78bfa", stats: C.accent, finance: C.amber, formula: C.red };
+  const cats = [
+    { id: "all",     label: "All" },
+    { id: "greek",   label: "Greek Letters" },
+    { id: "math",    label: "Math Notation" },
+    { id: "stats",   label: "Statistics" },
+    { id: "finance", label: "Finance" },
+    { id: "formula", label: "Key Formulas" },
+  ];
+  const filtered = GLOSSARY_ENTRIES.filter(e => {
+    const q = query.toLowerCase();
+    const mQ = !q || e.sym.toLowerCase().includes(q) || e.name.toLowerCase().includes(q) || e.def.toLowerCase().includes(q) || e.eli.toLowerCase().includes(q);
+    return mQ && (catF === "all" || e.cat === catF);
+  });
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>Search all symbols and formulas</div>
+        <p style={pstyle}>Every symbol, metric, and formula used across the library — with plain-English ELI15 explanations. Search by name, symbol, or concept. Use the category filters to narrow down:</p>
+        <div style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center", background: C.code, padding: "8px 12px", borderRadius: 6, border: `1px solid ${C.border}` }}>
+          <span style={{ color: C.muted, fontSize: 13 }}>🔍</span>
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search — e.g. sigma, sharpe, kelly, z-score..."
+            style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: C.text, fontSize: 12, fontFamily: "monospace" }} />
+          {query && <button onClick={() => setQuery("")} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 13 }}>✕</button>}
+        </div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+          {cats.map(c => <Btn key={c.id} active={catF === c.id} color={catColors[c.id] || C.accent} onClick={() => setCatF(c.id)}>{c.label}</Btn>)}
+        </div>
+        <div style={{ fontSize: 10, color: C.muted, ...mono, marginBottom: 12 }}>{filtered.length} of {GLOSSARY_ENTRIES.length} entries</div>
+        <div style={{ display: "grid", gap: 8 }}>
+          {filtered.map((entry, i) => {
+            const cc = catColors[entry.cat] || C.text;
+            return (
+              <div key={i} style={{ background: C.code, borderRadius: 6, padding: "14px 16px", border: `1px solid ${cc}18`, display: "grid", gridTemplateColumns: "60px 150px 1fr", gap: 14, alignItems: "start" }}>
+                <div style={{ fontSize: 22, color: cc, ...mono, fontWeight: "bold", textAlign: "center", paddingTop: 2 }}>{entry.sym}</div>
+                <div>
+                  <div style={{ fontSize: 12, color: C.text, ...mono, fontWeight: "bold", marginBottom: 5 }}>{entry.name}</div>
+                  <span style={{ fontSize: 9, color: cc, ...mono, padding: "2px 6px", background: cc + "18", border: `1px solid ${cc}30`, borderRadius: 2 }}>{entry.cat}</span>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: C.muted, ...mono, marginBottom: 8, lineHeight: 1.5 }}>{entry.def}</div>
+                  <div style={{ fontSize: 11, color: C.text + "cc", ...mono, lineHeight: 1.7, borderLeft: `2px solid ${cc}40`, paddingLeft: 10 }}>{entry.eli}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GlossaryFormulasTab() {
+  const formulas = GLOSSARY_ENTRIES.filter(e => e.cat === "formula");
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>Core formulas reference card</div>
+        <p style={pstyle}>The most important equations in quant trading — fully explained. These appear throughout every article in the library. Read this once and you will never need to stop mid-article to look something up.</p>
+        {formulas.map((f, i) => (
+          <div key={i} style={{ background: C.code, padding: 18, borderRadius: 6, marginBottom: 14, border: "1px solid #a78bfa28" }}>
+            <div style={{ fontSize: 18, color: "#a78bfa", ...mono, fontWeight: "bold", marginBottom: 10, borderBottom: `1px solid ${C.border}30`, paddingBottom: 10 }}>{f.sym}</div>
+            <div style={{ fontSize: 13, color: C.text, ...mono, fontWeight: "bold", marginBottom: 4 }}>{f.name}</div>
+            <div style={{ fontSize: 11, color: C.muted, ...mono, marginBottom: 12 }}>{f.def}</div>
+            <div style={{ fontSize: 12, color: C.text, ...mono, lineHeight: 1.8, padding: "12px 16px", background: "#071018", borderRadius: 4, borderLeft: "2px solid #a78bfa" }}>{f.eli}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GlossaryGreekTab() {
+  const entries = GLOSSARY_ENTRIES.filter(e => e.cat === "greek");
+  const catColor = C.blue;
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>Greek letters — the alphabet of quant trading</div>
+        <p style={pstyle}>Greek letters appear constantly in finance and statistics. They have precise meanings. Here they all are:</p>
+        <div style={{ display: "grid", gap: 8 }}>
+          {entries.map((e, i) => (
+            <div key={i} style={{ background: C.code, borderRadius: 6, padding: "14px 16px", border: `1px solid ${catColor}18`, display: "grid", gridTemplateColumns: "60px 150px 1fr", gap: 14, alignItems: "start" }}>
+              <div style={{ fontSize: 28, color: catColor, ...mono, fontWeight: "bold", textAlign: "center" }}>{e.sym}</div>
+              <div>
+                <div style={{ fontSize: 12, color: C.text, ...mono, fontWeight: "bold", marginBottom: 4 }}>{e.name}</div>
+                <div style={{ fontSize: 11, color: C.muted, ...mono }}>{e.def}</div>
+              </div>
+              <div style={{ fontSize: 11, color: C.text + "cc", ...mono, lineHeight: 1.7, borderLeft: `2px solid ${catColor}40`, paddingLeft: 10 }}>{e.eli}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── LIBRARY DATA ─────────────────────────────────────────────
 // To add a new article: push a new object into ARTICLES.
 // All section components referenced here must be defined above.
@@ -1453,11 +2192,90 @@ const ARTICLES = [
       { id: "firmware",    label: "Mental Firmware",   component: BimbaMindTab },
     ],
   },
+  {
+    id: "quantstart-beginners-guide",
+    title: "The Complete Beginner's Guide to Quantitative Trading",
+    subtitle: "Strategy identification, backtesting, execution, and risk management — from scratch",
+    author: "QuantStart",
+    handle: "quantstart.com",
+    date: "2024",
+    difficulty: "BEGINNER",
+    color: C.blue,
+    tags: ["Foundations", "Backtesting", "Kelly Criterion", "Python", "Risk Management"],
+    stats: ["4 system pillars", "3 bias types explained", "Kelly Criterion derived"],
+    description: "QuantStart's foundational guide to building a complete quantitative trading system. Covers strategy identification (mean reversion vs momentum, trading frequency spectrum), backtesting pitfalls (look-ahead bias, survivorship bias, optimisation bias), execution systems and transaction costs, and risk management via both forms of the Kelly Criterion.",
+    sourceUrl: "https://www.quantstart.com/articles/Beginners-Guide-to-Quantitative-Trading/",
+    sections: [
+      { id: "overview",  label: "Overview",     component: QSOverviewTab },
+      { id: "pillars",   label: "The 4 Pillars", component: QSDeepDiveTab },
+      { id: "valid",     label: "Validation",   component: QSValidationTab },
+      { id: "eli15",     label: "ELI15",         component: QSELI15Tab },
+    ],
+  },
+  {
+    id: "zen-of-quant-trading",
+    title: "The Zen of Quantitative Trading",
+    subtitle: "A $1.5B hedge fund's philosophy on finding structure in market noise",
+    author: "IKOS Asset Management",
+    handle: "thehedgefundjournal.com",
+    date: "2024",
+    difficulty: "INTERMEDIATE",
+    color: "#7c3aed",
+    tags: ["Philosophy", "GARCH", "Cointegration", "Fat Tails", "Hedge Funds"],
+    stats: ["$1.5B AUM", "7 asset classes", "70+ quant professionals"],
+    description: "Written by IKOS Asset Management for The Hedge Fund Journal. A practitioner's philosophy on what quantitative trading really is: the search for structure in noisy market data. Covers GARCH volatility clustering, cointegration for pairs trading, fat tail risk, overfitting hazards, and why a portfolio of uncorrelated models outperforms any single strategy.",
+    sourceUrl: "https://thehedgefundjournal.com/the-zen-of-quantitative-trading/",
+    sections: [
+      { id: "overview",  label: "Overview",      component: ZenOverviewTab },
+      { id: "concepts",  label: "Key Concepts",  component: ZenConceptsTab },
+      { id: "valid",     label: "Validation",    component: ZenValidationTab },
+      { id: "eli15",     label: "ELI15",          component: ZenELI15Tab },
+    ],
+  },
+  {
+    id: "9-quant-strategies-2026",
+    title: "9 Quant Trading Strategies That Actually Work in 2026",
+    subtitle: "Edge sources, realistic Sharpe ratios, and who runs them — the complete picture",
+    author: "Quantt",
+    handle: "quantt.co.uk",
+    date: "May 2026",
+    difficulty: "ADVANCED",
+    color: C.red,
+    tags: ["Statistical Arbitrage", "Market Making", "Momentum", "HFT", "ML", "Crypto"],
+    stats: ["9 strategies", "Sharpe 0.5–20+", "Citadel · IMC · D.E. Shaw"],
+    description: "Quantt's 2026 guide to every major systematic trading strategy: statistical arbitrage, pairs trading, market making, momentum, mean reversion, machine learning, options volatility, HFT, and crypto quant. Each entry includes realistic Sharpe ratios, edge sources, the firms that run it at scale, and an implementation approach — plus a frank warning on backtest bias.",
+    sourceUrl: "https://www.quantt.co.uk/resources/quant-trading-strategies-guide",
+    sections: [
+      { id: "overview",    label: "Overview",          component: NineOverviewTab },
+      { id: "strategies",  label: "Strategy Explorer", component: NineStrategiesTab },
+      { id: "valid",       label: "Validation",        component: NineValidationTab },
+      { id: "eli15",       label: "ELI15",              component: NineELI15Tab },
+    ],
+  },
+  {
+    id: "symbols-glossary",
+    title: "Quant Symbols & Formulas Glossary",
+    subtitle: "Every symbol, metric, and formula in the library — searchable, with ELI15 explanations",
+    author: "Quant Library",
+    handle: "reference",
+    date: "Ongoing",
+    difficulty: "REFERENCE",
+    color: "#8b5cf6",
+    tags: ["Greek Letters", "Math Notation", "Statistics", "Finance", "Formulas"],
+    stats: ["36 entries", "6 categories", "Fully searchable"],
+    description: "An interactive, searchable reference for every mathematical symbol, statistical concept, finance metric, and key formula that appears across the library. Each entry shows a formal definition, a plain-English explanation, and an ELI15 analogy. Don't read like a dumb-dumb — look it up here first.",
+    sourceUrl: null,
+    sections: [
+      { id: "search",    label: "Search All",         component: GlossaryHomeTab },
+      { id: "greek",     label: "Greek Letters",      component: GlossaryGreekTab },
+      { id: "formulas",  label: "Core Formulas",      component: GlossaryFormulasTab },
+    ],
+  },
 ];
 
 // ── ARTICLE CARD ──────────────────────────────────────────────
 function ArticleCard({ article, onOpen }) {
-  const diffColor = ({ BEGINNER: C.accent, INTERMEDIATE: C.amber, ADVANCED: C.red })[article.difficulty] || C.blue;
+  const diffColor = ({ BEGINNER: C.accent, INTERMEDIATE: C.amber, ADVANCED: C.red, REFERENCE: "#8b5cf6" })[article.difficulty] || C.blue;
   return (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderLeft: `3px solid ${article.color}`, borderRadius: 6, padding: "22px 24px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 20, alignItems: "start" }}>
