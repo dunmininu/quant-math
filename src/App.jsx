@@ -2143,6 +2143,1105 @@ function GlossaryGreekTab() {
   );
 }
 
+// ── GENERIC TEMPLATE COMPONENTS (used by all 10 new articles) ─
+function GenericOverview({ what, why, when: whenUse, stats = [], keyFacts = [], color = C.accent }) {
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>What this is</div>
+        <p style={pstyle}>{what}</p>
+        {whenUse && (
+          <div style={{ background: C.code, padding: 14, borderRadius: 6, marginBottom: 14 }}>
+            <div style={{ fontSize: 10, color, ...mono, fontWeight: "bold", marginBottom: 8 }}>WHEN TO USE IT</div>
+            <p style={{ ...pstyle, marginBottom: 0 }}>{whenUse}</p>
+          </div>
+        )}
+        {why && (
+          <div style={{ padding: 14, background: color + "0e", border: `1px solid ${color}38`, borderRadius: 6, marginBottom: 14 }}>
+            <div style={{ fontSize: 10, color, ...mono, fontWeight: "bold", marginBottom: 6 }}>WHY IT MATTERS FOR TRADING</div>
+            <p style={{ ...pstyle, marginBottom: 0 }}>{why}</p>
+          </div>
+        )}
+        {stats.length > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(stats.length, 3)}, 1fr)`, gap: 12 }}>
+            {stats.map((s, i) => <Stat key={i} value={s.value} label={s.label} color={s.color || color} />)}
+          </div>
+        )}
+      </div>
+      {keyFacts.length > 0 && (
+        <div style={card}>
+          <div style={h2style}>Key facts</div>
+          <div style={{ display: "grid", gap: 8 }}>
+            {keyFacts.map((f, i) => (
+              <div key={i} style={{ background: C.code, padding: "10px 14px", borderRadius: 4, fontSize: 11, color: C.muted, ...mono, lineHeight: 1.7, borderLeft: `2px solid ${color}60` }}>{f}</div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GenericDeepDive({ sections = [], color = C.accent }) {
+  const [active, setActive] = useState(0);
+  const sec = sections[active] || {};
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>The model — deep dive</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+          {sections.map((s, i) => <Btn key={i} active={active === i} color={color} onClick={() => setActive(i)}>{s.title}</Btn>)}
+        </div>
+        <div style={{ background: C.code, borderRadius: 8, padding: 20, border: `1px solid ${color}40` }}>
+          <div style={h3style}>{sec.title}</div>
+          {sec.body && <p style={pstyle}>{sec.body}</p>}
+          {sec.bullets && (
+            <div style={{ display: "grid", gap: 6, marginBottom: 14 }}>
+              {sec.bullets.map((b, i) => (
+                <div key={i} style={{ fontSize: 11, color: C.text, ...mono, lineHeight: 1.7, padding: "6px 10px", background: "#071018", borderRadius: 3, borderLeft: `2px solid ${color}50` }}>{b}</div>
+              ))}
+            </div>
+          )}
+          {sec.code && <div style={codestyle}>{sec.code}</div>}
+          {sec.body2 && <p style={{ ...pstyle, marginTop: 10, marginBottom: 0 }}>{sec.body2}</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GenericValidation({ entries = [], color = C.accent }) {
+  const SC = { "VERY STRONG": C.accent, "STRONG": C.blue, "MODERATE": C.amber, "EMERGING": C.muted };
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>Validation — is this solid?</div>
+        {entries.map((v, i) => {
+          const vc = SC[v.strength] || C.muted;
+          return (
+            <div key={i} style={{ background: C.code, padding: 14, borderRadius: 6, border: `1px solid ${vc}28`, marginBottom: 10 }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+                <span style={{ fontSize: 9, color: vc, ...mono, padding: "2px 7px", background: vc + "18", border: `1px solid ${vc}40`, borderRadius: 2 }}>{v.strength}</span>
+              </div>
+              <div style={{ fontSize: 11, color: C.text, ...mono, fontWeight: "bold", marginBottom: 6 }}>{v.claim}</div>
+              <div style={{ fontSize: 11, color: C.muted, ...mono, lineHeight: 1.7 }}>{v.evidence}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function GenericELI15({ items = [], color = C.accent }) {
+  const [q, setQ] = useState(0);
+  const item = items[q] || { term: "", eli: "" };
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>ELI15 — every concept, simply</div>
+        <p style={pstyle}>Click any term to see it explained without jargon:</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
+          {items.map((it, i) => <Btn key={i} active={q === i} color={color} onClick={() => setQ(i)}>{it.term}</Btn>)}
+        </div>
+        <div style={{ background: C.code, padding: 20, borderRadius: 8, border: `1px solid ${color}`, minHeight: 100 }}>
+          <div style={{ fontSize: 14, color, ...mono, fontWeight: "bold", marginBottom: 12 }}>{item.term}</div>
+          <div style={{ fontSize: 13, color: C.text, ...mono, lineHeight: 1.85 }}>{item.eli}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── GENERIC MENTAL MODEL COMPONENT ───────────────────────────
+function GenericMentalModel({ models = [], color = C.accent }) {
+  const [active, setActive] = useState(0);
+  const m = models[active] || {};
+  return (
+    <div>
+      <div style={card}>
+        <div style={h2style}>Mental models</div>
+        <p style={pstyle}>The right analogy makes a concept stick permanently. Master these and you will never need to look the definition up again:</p>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+          {models.map((mm, i) => <Btn key={i} active={active === i} color={color} onClick={() => setActive(i)}>{mm.icon} {mm.title}</Btn>)}
+        </div>
+        <div style={{ background: C.code, padding: 22, borderRadius: 8, border: `1px solid ${color}`, minHeight: 130 }}>
+          <div style={{ fontSize: 28, marginBottom: 10 }}>{m.icon}</div>
+          <div style={{ fontSize: 14, color, ...mono, fontWeight: "bold", marginBottom: 12 }}>{m.title}</div>
+          <div style={{ fontSize: 13, color: C.text, ...mono, lineHeight: 1.85, marginBottom: m.insight ? 14 : 0 }}>{m.body}</div>
+          {m.insight && (
+            <div style={{ padding: "10px 14px", background: color + "10", border: `1px solid ${color}30`, borderRadius: 4, fontSize: 11, color, ...mono, lineHeight: 1.7 }}>
+              💡 Key insight: {m.insight}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── ARTICLE DATA OBJECTS ──────────────────────────────────────
+const OU_DATA = {
+  overview: {
+    color: C.accent,
+    what: "The Ornstein-Uhlenbeck (OU) process is a mean-reverting stochastic process — it models systems pulled back toward a long-run equilibrium value. Originally from physics (1930), it became the foundational model for pairs trading spreads, interest rate dynamics, and volatility modelling. The spread between two cointegrated assets is typically modelled as an OU process.",
+    why: "Pairs trading and spread strategies rely on the spread being genuinely mean-reverting. The OU process gives you three quantifiable outputs: confirmation that mean reversion exists, the half-life of reversion (expected holding period), and the exact entry/exit thresholds based on historical spread behaviour.",
+    when: "Use it whenever you believe a time series has a natural equilibrium it returns to: pairs spreads, yield curve spreads, volatility indices, basis between spot and futures contracts.",
+    stats: [{ value: "1930", label: "Ornstein & Uhlenbeck original paper" }, { value: "ln(2)/θ", label: "Formula for half-life of mean reversion" }, { value: "θ, μ, σ", label: "Three interpretable parameters: speed, mean, noise" }],
+    keyFacts: [
+      "SDE: dX_t = θ(μ − X_t)dt + σdW_t — θ is mean reversion speed, μ is long-run mean, σ is noise volatility.",
+      "The process is stationary — it has a stable long-run distribution: N(μ, σ²/2θ). Unlike a random walk, variance does not grow without bound.",
+      "Half-life = ln(2)/θ. If θ=0.2 then half-life ≈ 3.5 days. This is your expected trade holding period.",
+      "The OU process is the continuous-time limit of an AR(1) process — the connection to ARMA time series models.",
+      "Used as the basis for the Vasicek interest rate model, the CIR model, and the Heston stochastic volatility model.",
+    ],
+  },
+  deepdive: {
+    color: C.accent,
+    sections: [
+      {
+        title: "The SDE & Simulation",
+        body: "Three parameters define the OU process completely. θ controls the pull strength back to the mean. μ is the equilibrium. σ is the magnitude of random noise. The discrete-time Euler-Maruyama approximation makes simulation straightforward.",
+        code: `# OU SDE:  dX = theta*(mu - X)*dt + sigma*dW
+
+import numpy as np
+
+def simulate_ou(theta, mu, sigma, X0, dt, n_steps):
+    X = np.zeros(n_steps)
+    X[0] = X0
+    for t in range(1, n_steps):
+        dW = np.random.normal(0, np.sqrt(dt))
+        X[t] = X[t-1] + theta*(mu - X[t-1])*dt + sigma*dW
+    return X
+
+# Exact solution (more accurate for larger dt):
+# X[t] = X[t-1]*exp(-theta*dt) + mu*(1-exp(-theta*dt))
+#         + sigma*sqrt((1-exp(-2*theta*dt))/(2*theta)) * Z
+
+# Half-life calculation:
+half_life = np.log(2) / 0.2  # theta=0.2 => HL=3.5 years
+# For daily data with dt=1/252: theta=0.2 => HL≈3.5 days`,
+      },
+      {
+        title: "Parameter Estimation",
+        body: "Fit the OU parameters from real price data using the AR(1) regression (the discrete-time equivalent). OLS gives you θ, μ, σ, and the half-life directly from the regression output.",
+        code: `# OLS estimation: regress X_t on X_{t-1}
+import statsmodels.api as sm
+
+def estimate_ou_ols(X, dt=1/252):
+    model = sm.OLS(X[1:], sm.add_constant(X[:-1])).fit()
+    a, b = model.params            # intercept, AR coefficient
+    theta = -np.log(b) / dt
+    mu    = a / (1 - b)
+    sigma_eps = np.std(model.resid)
+    sigma = sigma_eps * np.sqrt(-2*np.log(b) / (dt*(1-b**2)))
+    half_life = np.log(2) / theta
+    return {"theta": theta, "mu": mu, "sigma": sigma,
+            "half_life": half_life}`,
+      },
+      {
+        title: "Pairs Trading Signal",
+        body: "Compute the spread between two cointegrated assets. Estimate OU parameters. Enter when z-score of spread exceeds 2σ. Exit at z=0. The half-life tells you the expected trade duration.",
+        code: `def pairs_signal(spread, window=60):
+    params = estimate_ou_ols(spread[-window:])
+    mu, sigma = params["mu"], params["sigma"]
+    z = (spread[-1] - mu) / sigma
+
+    if z > 2.0:   return -1, z   # Short spread
+    elif z < -2.0: return +1, z  # Long spread
+    elif abs(z) < 0.5: return 0, z  # Close position
+    return None, z  # Hold current position`,
+      },
+    ],
+  },
+  mentalModels: [
+    { icon: "🐕", title: "Dog on a Leash", body: "Imagine a dog walking with its owner on a long leash. The dog can wander ahead or lag behind, but whenever it strays too far the leash pulls it back. The OU process is that mathematical leash — it models anything that has a natural equilibrium it is always being pulled toward. The spread between Shell and BP is the dog. Economic fundamentals are the owner.", insight: "The further the spread from equilibrium, the stronger the pull back. This is why extreme z-scores are the best entry points." },
+    { icon: "🌡️", title: "Room Temperature Analogy", body: "A room with the thermostat set to 22°C. Open a window in winter — it gets cold. The heater kicks in harder. Open a window in summer — it gets warm. The AC kicks in. The temperature always pulls back toward 22°C. θ is how powerful the heating/cooling system is. σ is how drafty the building is.", insight: "θ (mean reversion speed) is the thermostat. You want it strong enough to close your trade within your desired timeframe, but the noise (σ) has to be small enough relative to θ to actually trade profitably." },
+    { icon: "📏", title: "The Trading Implication", body: "Half-life = ln(2)/θ. If the half-life is 3 days, you expect the trade to be halfway resolved in 3 days and 90% resolved in about 10 days. This tells you: (1) your minimum position holding period, (2) how much capital will be tied up, (3) whether the transaction costs are worth paying given the speed of reversion.", insight: "Never take an OU trade without checking the half-life. A half-life of 200 days means your capital is locked up for months." },
+  ],
+  validation: [
+    { claim: "OU process is the standard model for mean-reverting spread dynamics in statistical arbitrage", strength: "VERY STRONG", evidence: "Ornstein & Uhlenbeck (1930) original physics paper. Vasicek (1977) applied OU to interest rate modelling. Gatev, Goetzmann & Rouwenhorst (2006, RFS) showed pairs trading is profitable — their spreads follow OU dynamics. Chan (2012) uses OU parameter estimation throughout 'Algorithmic Trading'." },
+    { claim: "Half-life formula ln(2)/θ gives the correct expected holding period for a pairs trade", strength: "STRONG", evidence: "Derived directly from the continuous-time OU SDE. The half-life is the time for the expected deviation to reduce by 50%. Chan (2012) uses this formula throughout his pairs trading examples. Standard in any systematic pairs trading implementation." },
+  ],
+  eli15: [
+    { term: "Ornstein-Uhlenbeck Process", eli: "A dog on a leash. The dog can wander left or right, but the leash always pulls it back. The OU process is the math behind any system that has a 'home position' it tends to return to — like the spread between two related stocks." },
+    { term: "θ — Mean Reversion Speed", eli: "How strong is the leash? θ=5 means the spread snaps back to the mean in days. θ=0.1 means it drifts for months. Higher θ = faster trades, more opportunities per year, but smaller per-trade profit." },
+    { term: "Half-Life", eli: "If the spread is $2 away from its mean and the half-life is 10 days, you expect it to be only $1 away after 10 days. This is your expected holding period. Never enter a pairs trade without knowing the half-life." },
+    { term: "Z-Score Entry/Exit", eli: "Z-score = (spread − mean) / std_dev. Enter when z > 2 or z < −2 (unusually stretched). Exit when z returns to 0 (back to equilibrium). This is the entire trading rule for an OU-based pairs strategy." },
+    { term: "Stationary vs Non-Stationary", eli: "A stationary process always returns to the same mean and has bounded variance. An OU process is stationary. A random walk is NOT stationary — it wanders without bound. You can only pairs-trade a stationary spread." },
+  ],
+};
+
+const ARIGARCH_DATA = {
+  overview: {
+    color: C.amber,
+    what: "QuantStart's ARIMA+GARCH strategy combines two time series models to forecast and trade the S&P500. ARIMA models the conditional mean (direction of returns), while GARCH models the conditional variance (how volatile the returns will be). A rolling window is fitted fresh each day, and the next-day forecast drives the trade signal.",
+    why: "Buy-and-hold the S&P500 works long-term but gives a painful ride with large drawdowns. By forecasting return direction and only being invested when the model predicts positive returns, ARIMA+GARCH significantly improves risk-adjusted returns — especially by sidestepping the worst periods.",
+    when: "Use when daily returns show autocorrelation structure and when volatility clustering is present. Best on major liquid indices where the statistical patterns are most stable over time.",
+    stats: [{ value: "ARIMA", label: "Models direction — which way returns will go" }, { value: "GARCH", label: "Models magnitude — how volatile returns will be" }, { value: "Rolling", label: "Refit model every day on the last N observations" }],
+    keyFacts: [
+      "ARIMA(p,d,q): p=AR lags, d=differencing, q=MA lags. For stationary returns, d=0 (ARMA). Choose p and q by minimising AIC or BIC.",
+      "GARCH(1,1) is the standard specification. Captures volatility clustering: big moves follow big moves.",
+      "The combined model: ARIMA handles the mean equation, GARCH handles the variance equation.",
+      "Signal: if ARIMA forecasts positive return tomorrow, go long. If negative, go flat (or short). Size position inversely with GARCH volatility forecast.",
+      "Critical: no look-ahead bias. The model must only use data available before each trading day.",
+    ],
+  },
+  deepdive: {
+    color: C.amber,
+    sections: [
+      {
+        title: "ARIMA Order Selection",
+        body: "Select ARIMA(p,q) order by minimising AIC across a grid of candidates. The winning order is the model that best balances fit and parsimony. Typically ARIMA(1,0,1) or ARIMA(2,0,1) on equity index returns.",
+        code: `import itertools, warnings
+import statsmodels.api as sm
+warnings.filterwarnings("ignore")
+
+def select_arima(returns, max_p=3, max_q=3):
+    best_aic, best_order = np.inf, (0,0,0)
+    for p, q in itertools.product(range(max_p+1), range(max_q+1)):
+        try:
+            m = sm.tsa.ARIMA(returns, order=(p,0,q)).fit()
+            if m.aic < best_aic:
+                best_aic, best_order = m.aic, (p,0,q)
+        except: pass
+    return best_order`,
+      },
+      {
+        title: "GARCH Variance Equation",
+        body: "Fit GARCH(1,1) to the ARIMA residuals. The combined model gives both a direction forecast (from ARIMA) and a volatility forecast (from GARCH). Position size inversely with volatility: when GARCH says volatility is high, reduce exposure.",
+        code: `from arch import arch_model
+
+def fit_arima_garch(returns, order=(1,0,1)):
+    arima = sm.tsa.ARIMA(returns, order=order).fit()
+    garch = arch_model(arima.resid, vol='Garch', p=1, q=1,
+                       dist='skewt').fit(disp='off')
+    mean_fc = arima.forecast(1)[0]
+    vol_fc  = float(garch.forecast(horizon=1).variance.iloc[-1])
+    return mean_fc, np.sqrt(vol_fc)`,
+      },
+      {
+        title: "Rolling Strategy",
+        body: "Every day: (1) take the last window of returns, (2) fit ARIMA+GARCH, (3) generate signal based on forecast direction. Never peek at future data.",
+        code: `def rolling_strategy(returns, window=252):
+    signals = []
+    for i in range(window, len(returns)):
+        train = returns[i-window:i]   # Only past data!
+        try:
+            order = select_arima(train)
+            fc_mean, fc_vol = fit_arima_garch(train, order)
+            signals.append(1 if fc_mean > 0 else -1)
+        except:
+            signals.append(0)
+    # Strategy return = signal * next day actual return
+    return pd.Series(signals) * returns[window:]`,
+      },
+    ],
+  },
+  mentalModels: [
+    { icon: "🌤️", title: "The Two-Part Weather Forecast", body: "A good weather forecast tells you two things: (1) will it rain tomorrow? (2) How heavy will the rain be? ARIMA is the 'will it rain' part — it forecasts the direction. GARCH is the 'how heavy' part — it forecasts the magnitude of volatility. You use both: trade direction from ARIMA, size your position with GARCH.", insight: "Direction without magnitude is incomplete. A +0.1% expected return with 3% expected volatility is a much weaker signal than +0.1% with 0.5% volatility." },
+    { icon: "😰", title: "The Nervous Crowd", body: "When someone panics in a crowded room, others panic too. When markets are calm, they tend to stay calm. GARCH captures this 'contagious fear' in volatility. It says: the market's nervousness today depends on how nervous it was yesterday (σ²_t-1) and what surprising thing happened today (ε²_t-1).", insight: "High GARCH volatility forecast = reduce position size or stay flat. This single adjustment can dramatically reduce drawdowns." },
+    { icon: "📰", title: "Rolling Memory", body: "Every day you throw away the oldest newspaper and add today's. Your strategy only reads the most recent 252 newspapers. Why? Markets evolve — patterns from 5 years ago may be irrelevant today. The rolling window keeps the model anchored to current conditions without being distracted by ancient history.", insight: "The window length W is a critical hyperparameter. Short W = reactive but noisy. Long W = stable but slow to adapt to regime changes." },
+  ],
+  validation: [
+    { claim: "GARCH(1,1) captures volatility clustering in financial returns", strength: "VERY STRONG", evidence: "Engle (1982) ARCH model — Nobel Prize 2003. Bollerslev (1986) GARCH extension. Confirmed across all financial markets. α+β≈0.99 is a consistent empirical finding across equities, FX, and commodities." },
+    { claim: "ARIMA order selection via AIC is a valid and standard methodology", strength: "STRONG", evidence: "Box & Jenkins (1970) methodology is the standard framework. Akaike (1974) AIC information criterion. BIC (Schwarz, 1978) is more conservative. Standard in every time series forecasting application globally." },
+  ],
+  eli15: [
+    { term: "ARIMA Model", eli: "ARIMA says: yesterday's return and last week's return can somewhat predict today's. Not perfectly, but better than random guessing. It finds the best linear formula that uses past returns to forecast future ones." },
+    { term: "GARCH Model", eli: "When the market is scared, it stays scared. When it is calm, it stays calm. GARCH models this persistence in volatility. Tomorrow's volatility = a function of yesterday's volatility plus how big today's surprise was." },
+    { term: "Rolling Window", eli: "Every day: drop the oldest data, add the newest, refit the model. You always work with the most recent year of data. This keeps the model current rather than anchored to distant, potentially irrelevant history." },
+    { term: "Direction + Magnitude", eli: "ARIMA says 'go up tomorrow'. GARCH says 'but the expected move is huge — 3% volatility'. These two signals together let you decide both direction AND how much capital to risk on the trade." },
+    { term: "Why It Can Fail Live", eli: "The backtest finds patterns in historical data. Those patterns may be weaker in live trading, or may have disappeared entirely. Always paper trade before committing real capital. Compare live Sharpe to backtest Sharpe — a large gap reveals overfitting." },
+  ],
+};
+
+const KALMAN_DATA = {
+  overview: {
+    color: C.blue,
+    what: "The Kalman Filter is a recursive Bayesian algorithm for estimating the hidden state of a dynamic system from noisy observations. Originally built for NASA's Apollo program guidance computers (1960), it is now a core tool in quantitative finance for tracking time-varying hedge ratios and filtering noisy financial signals.",
+    why: "Static hedge ratios in pairs trading become stale as market conditions change. The Kalman Filter adapts continuously — every new price tick updates the hedge ratio estimate. This eliminates the lookback window free parameter that plagues rolling regression approaches and produces a more accurate dynamic hedge.",
+    when: "Use when: you need to track a relationship that changes over time, observations are noisy but follow a predictable model, or you want a principled Bayesian framework for dynamic parameter estimation.",
+    stats: [{ value: "1960", label: "Kalman's original paper — guided Apollo to the moon" }, { value: "Predict + Update", label: "Two-step recursive cycle on every new observation" }, { value: "Optimal", label: "Mathematically optimal under linear Gaussian assumptions" }],
+    keyFacts: [
+      "State equation: x_t = F·x_{t-1} + w_t (how the hidden state evolves, noise Q).",
+      "Observation equation: z_t = H·x_t + v_t (noisy measurement of the hidden state, noise R).",
+      "Kalman Gain K: how much to trust the new measurement vs the prior prediction. K = P·H^T / (H·P·H^T + R).",
+      "Q/R ratio is the key tuning parameter: high Q/R = hedge ratio changes rapidly; low Q/R = hedge ratio changes slowly.",
+      "For pairs trading: hidden state x = [β, α] (hedge ratio and intercept). Observation z = price of asset A. Design matrix H = [price_B, 1].",
+    ],
+  },
+  deepdive: {
+    color: C.blue,
+    sections: [
+      {
+        title: "Predict-Update Cycle",
+        body: "The Kalman Filter runs two steps every time a new price arrives. Predict: propagate the prior estimate forward. Update: correct using the new observation. The Kalman Gain optimally weights the prediction vs the measurement.",
+        code: `import numpy as np
+
+class KalmanFilter:
+    def __init__(self, F, Q, R, x0, P0):
+        self.F = F; self.Q = Q; self.R = R
+        self.x = x0; self.P = P0
+
+    def step(self, z, H):
+        # PREDICT
+        self.x = self.F @ self.x
+        self.P = self.F @ self.P @ self.F.T + self.Q
+        # UPDATE
+        H = np.array(H).reshape(1,-1)
+        innov = z - (H @ self.x)[0]
+        S = (H @ self.P @ H.T)[0,0] + self.R
+        K = (self.P @ H.T / S).flatten()
+        self.x = self.x + K * innov
+        self.P = (np.eye(len(self.x)) - np.outer(K, H)) @ self.P
+        return self.x.copy()`,
+      },
+      {
+        title: "Dynamic Hedge Ratio",
+        body: "Apply the Kalman Filter to TLT and IEI (US Treasury ETFs) to track the dynamic hedge ratio β. The spread = TLT − β·IEI is kept stationary by the adaptive filter, providing cleaner mean-reversion signals than a fixed regression.",
+        code: `def kalman_pairs(price_a, price_b, delta=1e-4):
+    n = len(price_a)
+    beta = np.zeros(n); spread = np.zeros(n)
+
+    F = np.eye(2)
+    Q = delta/(1-delta) * np.eye(2)  # Process noise
+    kf = KalmanFilter(F, Q, R=1.0,
+                      x0=np.zeros(2), P0=np.eye(2))
+    for t in range(n):
+        H = [price_b[t], 1.0]
+        state = kf.step(price_a[t], H)
+        beta[t] = state[0]
+        spread[t] = price_a[t] - state[0]*price_b[t] - state[1]
+    return beta, spread`,
+      },
+      {
+        title: "Signal Generation",
+        body: "Once you have the Kalman-filtered spread, compute its z-score on a rolling window. Trade when z-score exceeds ±2 standard deviations. The Kalman Filter's adaptive hedge ratio means the spread is more consistently stationary than a fixed regression spread.",
+        code: `def kalman_signal(spread, window=60):
+    mu  = pd.Series(spread).rolling(window).mean()
+    sig = pd.Series(spread).rolling(window).std()
+    z   = (spread - mu) / sig
+
+    # Entry signals
+    long_entry  = z < -2.0   # Spread too low  -> long
+    short_entry = z >  2.0   # Spread too high -> short
+    # Exit signals
+    exit_signal = abs(z) < 0.5
+    return z, long_entry, short_entry, exit_signal`,
+      },
+    ],
+  },
+  mentalModels: [
+    { icon: "🌫️", title: "Driving in Fog with GPS", body: "You are driving in thick fog. You have two sources of information: your GPS says you are at position X (noisy but recent), and your physics model says 'you were at position Y 1 second ago going 60km/h, so you should be at Y+16m now' (prediction from model). The Kalman Filter combines both optimally — trusting GPS more when the fog is thin (low R), trusting physics more when the GPS signal is weak (high R).", insight: "Q/R ratio is how much you trust the GPS signal vs your physics prediction. In trading: Q/R controls how quickly the hedge ratio adapts to new prices." },
+    { icon: "🔍", title: "The Bayesian Detective", body: "Sherlock Holmes starts each case with a prior belief (the prediction from past evidence). As new clues arrive, he updates his belief proportionally to how diagnostic the clue is. The Kalman Filter is this exact process — formalised in mathematics. The Kalman Gain K is Holmes's diagnostic weight for each new piece of evidence.", insight: "The hedge ratio is never directly observable — you can only see noisy prices. The Kalman Filter is the optimal way to infer the hidden truth from noisy observations." },
+    { icon: "⚖️", title: "Why Better Than Rolling Regression", body: "Rolling regression (e.g. 60-day window) has a free parameter — the lookback length. Choose 30 days: too noisy. Choose 200 days: too slow to adapt. Kalman Filter has NO lookback window. Instead, it has Q and R (process noise and observation noise) which have intuitive interpretations and can be estimated from the data. One problem solved more elegantly.", insight: "The Q/R ratio in Kalman plays the same role as the lookback window in rolling regression — but it is grounded in the noise structure of the data, not an arbitrary time horizon." },
+  ],
+  validation: [
+    { claim: "Kalman Filter is mathematically optimal for linear Gaussian state estimation", strength: "VERY STRONG", evidence: "Kalman (1960) proved optimality — the filter is the minimum mean squared error estimator. Used in GPS, Apollo, robotics, econometrics. Standard for 65+ years across aerospace and signal processing." },
+    { claim: "Kalman-based dynamic hedge ratio outperforms static rolling regression in pairs trading", strength: "STRONG", evidence: "Chan (2012) 'Algorithmic Trading' demonstrates this on TLT/IEI. O'Mahony (Quantopian, 2013) independently validated. Key advantage: no lookback window free parameter. The filter adapts continuously without requiring window optimisation." },
+  ],
+  eli15: [
+    { term: "Kalman Filter", eli: "You are tracking a moving car in thick fog. You have a blurry radar signal (noisy measurement) and Newton's laws (your prediction model). The Kalman Filter combines both optimally: weight the radar signal vs the physics prediction based on how reliable each is. Result: better estimate than either source alone." },
+    { term: "Hidden State", eli: "The true hedge ratio between two assets. You cannot observe it directly — you only see noisy prices. The Kalman Filter estimates this unobservable truth from the noisy observations, updating its estimate every time a new price arrives." },
+    { term: "Predict Step", eli: "Before seeing today's price: make your best guess about the hedge ratio based on where it was yesterday and how it tends to move. This is the prior estimate — like a weather forecast before you look out the window." },
+    { term: "Update Step", eli: "Now see today's actual prices. Compare what you predicted to what happened. The bigger the gap, the more you update. The Kalman Gain K determines how aggressively to update: K=1 means trust the data completely; K=0 means ignore the data." },
+    { term: "Q/R Ratio", eli: "Q = how much the true hedge ratio changes between steps. R = how noisy your price measurements are. Q/R=0.0001 means the hedge ratio barely moves and prices are relatively clean. Higher Q/R = more responsive filter but noisier hedge ratio estimates." },
+  ],
+};
+
+const HMM_DATA = {
+  overview: {
+    color: "#e879f9",
+    what: "Hidden Markov Models (HMMs) treat financial markets as a system switching between hidden regimes — bull, bear, sideways — each emitting characteristic return distributions. You cannot observe the regime directly; you infer it from price behaviour. The Baum-Welch algorithm learns regime parameters unsupervised from unlabelled return data.",
+    why: "A momentum strategy that works in bull markets loses money in bear markets. Detecting the current regime and switching strategies accordingly can dramatically improve risk-adjusted returns and reduce drawdowns.",
+    when: "Use for regime detection (bull/bear/sideways), strategy switching based on detected regime, position sizing based on regime volatility, or identifying when your primary strategy is likely to underperform.",
+    stats: [{ value: "2–3", label: "Typical number of regimes: bull/bear or bull/sideways/bear" }, { value: "Baum-Welch", label: "EM algorithm for unsupervised training from unlabelled data" }, { value: "Viterbi", label: "Algorithm for finding the most likely regime sequence" }],
+    keyFacts: [
+      "Each hidden state (regime) has its own Gaussian emission: different mean return and volatility per regime.",
+      "Transition matrix A: A[i][j] = probability of moving from regime i to regime j. High diagonal = persistent regimes.",
+      "Baum-Welch = EM algorithm. It discovers regimes automatically — you never label which days were bull or bear.",
+      "Posterior probabilities: P(regime=k | all observations). Use these as soft trading signals rather than hard state assignments.",
+      "hmmlearn is the standard Python library: GaussianHMM for continuous returns.",
+    ],
+  },
+  deepdive: {
+    color: "#e879f9",
+    sections: [
+      {
+        title: "Model Structure",
+        body: "An HMM has three components: π (initial state probs), A (transition matrix), and B (emission parameters per state). For financial markets, emissions are Gaussian with regime-specific mean and variance.",
+        code: `# HMM components:
+# pi: initial state probs, e.g. [0.7, 0.3]
+# A:  transition matrix:
+#     [[0.95, 0.05],  # P(stay bull | bull) = 95%
+#      [0.10, 0.90]]  # P(stay bear | bear) = 90%
+# B:  emissions per state:
+#     Bull: mean=+0.05%, sigma=0.8%  (calm uptrend)
+#     Bear: mean=-0.10%, sigma=1.8%  (volatile decline)
+# High diagonal in A = regimes are persistent.`,
+      },
+      {
+        title: "Training with hmmlearn",
+        body: "Baum-Welch discovers the regimes automatically. You provide return data; the algorithm finds the parameters that best explain the observations without any labels.",
+        code: `from hmmlearn.hmm import GaussianHMM
+import numpy as np
+
+def train_hmm(returns, n_states=2, n_iter=200):
+    X = returns.reshape(-1, 1)
+    model = GaussianHMM(n_components=n_states,
+                        covariance_type="full",
+                        n_iter=n_iter).fit(X)
+    states = model.predict(X)
+    # Identify bull (highest mean) vs bear (lowest mean)
+    means = model.means_.flatten()
+    bull  = np.argmax(means)
+    print(f"Bull: mean={means[bull]:.4f}, "
+          f"sigma={np.sqrt(model.covars_[bull][0][0]):.4f}")
+    print(f"Transition:\n{model.transmat_}")
+    return model, states, bull`,
+      },
+      {
+        title: "Regime-Based Strategy",
+        body: "Use the smoothed posterior probabilities as soft signals. Momentum in bull regime; flat or short in bear regime. Sizing scales with bull probability.",
+        code: `def regime_signal(returns, model, bull_state):
+    X = returns.reshape(-1, 1)
+    _, posteriors = model.score_samples(X)
+    bull_prob = posteriors[:, bull_state]
+    # Signal: scale between -1 and +1 based on bull probability
+    signal = np.where(bull_prob > 0.65,  1,
+             np.where(bull_prob < 0.35, -1, 0))
+    return signal, bull_prob`,
+      },
+    ],
+  },
+  mentalModels: [
+    { icon: "🌡️", title: "Market Moods Behind Frosted Glass", body: "Imagine watching a person behind frosted glass. You cannot see their face (the hidden regime). But you can hear them — laughing, crying, or silent. Each mood has a characteristic sound pattern. The HMM says: the market has hidden moods (bull/bear/sideways), and each mood produces a characteristic pattern of returns. By listening to the returns, you infer the mood.", insight: "You can never be certain which regime you are in — you only have probabilities. Use the posterior probability as a continuous signal, not a binary switch." },
+    { icon: "🌦️", title: "Weather Regimes", body: "Weather has regimes: sunny spells last for days, rainy spells last for days, storm systems come and go. You cannot directly 'see' the weather system, only the current temperature and rainfall. An HMM for weather would model: 'sunny regime = warm, low rain. Rainy regime = cool, high rain. High probability of staying in the same regime tomorrow.' Financial markets work identically.", insight: "The transition matrix diagonal tells you how sticky regimes are. If A[bull][bull]=0.95, a bull regime typically lasts about 20 days (1/(1-0.95)). Plan your strategy's time horizon accordingly." },
+    { icon: "⚙️", title: "The Hidden Gear Shift", body: "A car has a hidden gear — you cannot see it, but you can infer it from engine noise and speed. Low speed + high revs = first gear. High speed + low revs = fifth gear. Each gear has a characteristic behaviour. Market regimes are the gears. The HMM is the gear position estimator that tells you which gear the market is currently in, so you deploy the right strategy.", insight: "The most valuable use of regime detection is often the AVOIDANCE trade — knowing you are in a bear regime and simply going flat or short instead of running your normal strategy." },
+  ],
+  validation: [
+    { claim: "Financial markets exhibit distinct statistical regimes detectable by HMMs", strength: "STRONG", evidence: "Hamilton (1989) Markov switching regression. Ang & Bekaert (2002) documented regime shifts in international equity markets. Turner, Startz & Nelson (1989) showed different return distributions in bull vs bear markets. Standard in central bank and macro models." },
+    { claim: "Baum-Welch EM algorithm reliably estimates HMM parameters from financial data", strength: "STRONG", evidence: "Baum et al. (1970) original paper. Standard in speech recognition and computational biology for 50+ years. For finance: re-fitting the HMM periodically (quarterly) is required as parameters drift over time." },
+  ],
+  eli15: [
+    { term: "Market Regimes", eli: "The market has moods that last days or weeks. Bull mood: prices drift up, low volatility. Bear mood: prices fall, high volatility. The key insight is that moods are persistent — they do not flip randomly every day. This persistence makes them tradeable." },
+    { term: "Hidden Markov Model", eli: "You cannot directly observe the market's mood. But you can observe prices and returns. The HMM says: each mood produces a characteristic return pattern. By observing the pattern, you infer the mood. Hidden = unobservable mood. Markov = each day's mood depends only on yesterday's mood." },
+    { term: "Baum-Welch Training", eli: "You feed the model a history of returns without any labels ('these days were bull, these were bear'). The algorithm figures it out entirely on its own — finding the regime parameters that make the observed returns most probable. Unsupervised learning at its most elegant." },
+    { term: "Posterior Probability", eli: "Instead of a hard 'you are in bull regime', the HMM gives you 'there is a 75% probability you are in bull regime right now'. This soft probability is a much better trading signal. At 75% bull: be 75% allocated. At 50%: be flat. At 20%: consider short." },
+    { term: "Transition Matrix", eli: "If A[bull][bull]=0.95, a bull regime typically lasts 1/(1-0.95)=20 days on average. This tells you: if you detect a regime switch, expect it to last about 20 days before the next switch. Size your position and time your hold accordingly." },
+  ],
+};
+
+const GBM_DATA = {
+  overview: {
+    color: C.accent,
+    what: "Geometric Brownian Motion (GBM) is the mathematical model underlying the Black-Scholes options formula and all of modern quantitative finance. It models asset prices as a drift (upward trend proportional to price) plus random shocks (also proportional to price). The 'geometric' part means percentage returns are normally distributed — not absolute price changes.",
+    why: "GBM is the foundation. Every time you hear Black-Scholes, implied volatility, or risk-neutral pricing, GBM is underneath. Understanding it gives you the mathematical language of options pricing, Monte Carlo simulation, and stochastic differential equations.",
+    when: "Use for: Monte Carlo simulation of option payoffs, generating synthetic price paths for backtesting, understanding options pricing from first principles, and as the baseline model before adding complexity (stochastic vol, jumps, mean reversion).",
+    stats: [{ value: "1973", label: "Black-Scholes paper assumed GBM — Nobel Prize 1997" }, { value: "dS=μSdt+σSdW", label: "The SDE that defines Geometric Brownian Motion" }, { value: "Log-normal", label: "GBM produces log-normally distributed prices" }],
+    keyFacts: [
+      "GBM SDE: dS = μS dt + σS dW. Prices cannot go negative (bounded at zero). Percentage returns are normally distributed.",
+      "Exact solution (via Ito's Lemma): S(t) = S(0)·exp((μ − σ²/2)t + σ√t·Z), where Z ~ N(0,1).",
+      "The Ito correction (−σ²/2) is the extra term from stochastic calculus. Without it, the mean price grows faster than the median price — Jensen's inequality applied to log-normal distributions.",
+      "GBM limitations: constant volatility (violated by vol smile), no jumps (violated by fat tails), no mean reversion (violated by rates and spreads).",
+      "Risk-neutral pricing: replace μ with r (risk-free rate) for option pricing. This makes the math tractable without changing the option price.",
+    ],
+  },
+  deepdive: {
+    color: C.accent,
+    sections: [
+      {
+        title: "The SDE & Solution",
+        body: "The GBM SDE says: price change = drift × price × time + noise × price × random shock. The solution gives you the price at any future time T as a function of today's price and the integrated randomness.",
+        code: `import numpy as np
+
+def simulate_gbm(S0, mu, sigma, T, dt, n_paths=1000):
+    """
+    Exact GBM simulation using Ito's solution.
+    S(t+dt) = S(t) * exp((mu - 0.5*sigma^2)*dt
+                          + sigma*sqrt(dt)*Z)
+    """
+    n = int(T / dt)
+    paths = np.zeros((n_paths, n + 1))
+    paths[:, 0] = S0
+    for t in range(1, n + 1):
+        Z = np.random.standard_normal(n_paths)
+        paths[:, t] = paths[:, t-1] * np.exp(
+            (mu - 0.5*sigma**2)*dt + sigma*np.sqrt(dt)*Z)
+    return paths
+
+# 1000 paths, S0=100, 8% drift, 20% vol, 1 year, daily
+paths = simulate_gbm(100, 0.08, 0.20, T=1.0,
+                     dt=1/252, n_paths=1000)`,
+      },
+      {
+        title: "Ito's Lemma",
+        body: "Ito's Lemma is the chain rule of stochastic calculus. Regular calculus fails because (dW)² = dt (not zero). The extra term (0.5 × second derivative × variance) is the Ito correction. It is why the exact GBM solution has σ²/2 subtracted from the drift.",
+        code: `# Classical chain rule:   df = (df/dX) dX
+# Ito's Lemma:  df = (df/dt)dt + (df/dX)dX + 0.5*(d2f/dX2)(dX)^2
+# For X=log(S) applied to GBM:
+#   d(log S) = (mu - 0.5*sigma^2)*dt + sigma*dW
+#   Extra term: -0.5*sigma^2*dt  <-- the Ito correction
+
+# Physical interpretation:
+# Arithmetic mean return ≠ geometric (compound) return
+# Geometric return = arithmetic mean - 0.5*variance
+# Example: +50% then -50% = -25% overall (not 0%)
+# The -0.5*sigma^2 captures this compounding drag.`,
+      },
+      {
+        title: "Monte Carlo Options Pricing",
+        body: "Any option can be priced by simulation: generate paths, compute payoffs, average and discount. No analytical formula needed — works for complex path-dependent payoffs that Black-Scholes cannot handle.",
+        code: `from scipy.stats import norm
+
+def mc_call_price(S0, K, T, r, sigma, n=100000):
+    Z  = np.random.standard_normal(n)
+    ST = S0 * np.exp((r - 0.5*sigma**2)*T
+                     + sigma*np.sqrt(T)*Z)
+    payoff = np.maximum(ST - K, 0)
+    price  = np.exp(-r*T) * np.mean(payoff)
+    se     = np.exp(-r*T) * np.std(payoff) / np.sqrt(n)
+    return price, se
+
+# Compare to Black-Scholes analytical formula
+price, se = mc_call_price(100, 100, 1.0, 0.05, 0.20)
+# MC: ~$10.45 ± $0.02  |  BS exact: $10.45  ✓`,
+      },
+    ],
+  },
+  mentalModels: [
+    { icon: "🚶", title: "The Drunk Uphill Walk", body: "GBM is a drunk person walking uphill on a slope. The slope is the drift μ — they tend to move upward over time. But at every step they stumble randomly to the left or right (the σ·dW noise). The 'geometric' part means the stumbles get bigger as they climb higher — a $10 stock stumbles by $1, a $100 stock stumbles by $10.", insight: "The drift μ matters less than you think for short horizons. For a 1-year option, the volatility σ dominates. For a 20-year investment, drift dominates. This is why traders care so much about vol and so little about expected returns when pricing short-term options." },
+    { icon: "📉", title: "Why Prices Cannot Go Negative", body: "In arithmetic Brownian Motion (the naive model), dS = μdt + σdW. This allows S to go negative — absurd for prices. GBM fixes this by making the shocks proportional to S: dS = μS dt + σS dW. When S approaches zero, shocks shrink toward zero too. Prices asymptotically approach zero but never cross it. The log-normal distribution enforces this.", insight: "This is the mathematical reason options are never worth more than the underlying stock — the stock cannot go below zero, so the most an option can earn is bounded." },
+    { icon: "⚖️", title: "Mean vs Median in GBM", body: "With +50% in year 1 and -50% in year 2, your arithmetic average return is 0%. But your actual money: $100 → $150 → $75. You LOST 25%. This gap between mean and median return is the volatility drag captured by the σ²/2 Ito correction. High volatility assets compound more slowly than their average return suggests.", insight: "This is why high-volatility strategies need significantly higher average returns to be worthwhile. The drag of volatility is a real cost, not a mathematical curiosity." },
+  ],
+  validation: [
+    { claim: "GBM is the foundational model underlying Black-Scholes options pricing", strength: "VERY STRONG", evidence: "Samuelson (1965) proposed log-normal prices. Black & Scholes (1973) and Merton (1973) built the Nobel Prize-winning formula on GBM. Standard in all derivatives textbooks and every options trading desk globally." },
+    { claim: "Ito's Lemma is the correct tool for differentiating functions of stochastic processes", strength: "VERY STRONG", evidence: "Ito (1951) original paper. Foundation of all stochastic calculus. Without the Ito correction, option pricing calculations give wrong answers. Proved formally: for any twice-differentiable function of a diffusion process, the quadratic variation term must be included." },
+  ],
+  eli15: [
+    { term: "Geometric Brownian Motion", eli: "A drunk person walking uphill. They tend to drift upward (the μ drift) but stumble randomly left and right at every step (the σ noise). The 'geometric' part means: the bigger they get, the bigger the stumbles — a $100 stock has bigger absolute moves than a $10 stock, but the same percentage moves." },
+    { term: "Ito's Lemma", eli: "Regular calculus says: if y=f(x), then dy = (df/dx)·dx. When x is random, there is an extra term because (dx)² is not zero — it equals dt. Ito's Lemma adds this correction. Without it, your option pricing calculations give the wrong answer. It is the fundamental 'second-order correction' of stochastic calculus." },
+    { term: "Volatility Drag (σ²/2)", eli: "If a stock goes up 50% one year and down 50% the next, your average return is 0% but your actual return is −25%. The volatility drag is this gap. Mathematically it equals σ²/2. Higher vol = more drag on compound growth. This is why the GBM solution subtracts σ²/2 from the drift." },
+    { term: "Risk-Neutral Pricing", eli: "To price options, pretend every asset grows at the risk-free rate r — not its actual drift μ. In this pretend 'risk-neutral world', take the expected payoff and discount at r. This gives the exact same price as a full equilibrium model, but is much easier to compute. The drift μ cancels out entirely." },
+    { term: "Monte Carlo Simulation", eli: "Generate 100,000 possible future stock price paths. For each path, calculate what the option pays out. Average the payoffs. Discount to today. That is the option price. No formula needed. Works for any option, no matter how complex. The law of large numbers makes it accurate with enough paths." },
+  ],
+};
+
+const MR_DATA = {
+  overview: {
+    color: C.amber,
+    what: "Statistical mean reversion testing determines whether a time series — such as a spread between two assets — is genuinely mean-reverting or just a random walk that happens to look like it reverts. Three tools: the Augmented Dickey-Fuller (ADF) test, the Hurst Exponent, and the half-life calculation from an OU regression.",
+    why: "Before entering any pairs trade or spread strategy, you must confirm the spread is actually mean-reverting. A random walk looks like it reverts in the short term but never reliably returns to any mean. Trading it as a mean-reversion strategy causes slow, consistent losses.",
+    when: "Run these tests before every new pairs setup. Test on: the spread between two candidate assets, residuals from a cointegrating regression, implied vol spreads between related options, yield spreads between bonds.",
+    stats: [{ value: "ADF", label: "Augmented Dickey-Fuller — p<0.05 confirms stationarity" }, { value: "H < 0.5", label: "Hurst Exponent below 0.5 indicates mean reversion" }, { value: "ln(2)/|λ|", label: "Half-life formula from AR(1) regression" }],
+    keyFacts: [
+      "ADF null hypothesis: series has a unit root (random walk). p<0.05 → reject null → series is stationary (mean-reverting).",
+      "Hurst Exponent: H<0.5 = mean-reverting, H=0.5 = random walk, H>0.5 = trending. Fast calculation via variance ratio method.",
+      "Half-life: fit AR(1) X_t = λ·X_{t-1} + μ + ε. Half-life = −ln(2)/ln(λ). Expected number of days to revert 50% to the mean.",
+      "Test on the SPREAD, not individual assets. Individual prices are almost always unit root processes.",
+      "All three tests should agree. A tradeable spread: ADF p<0.05, H significantly below 0.5, half-life of days to weeks.",
+    ],
+  },
+  deepdive: {
+    color: C.amber,
+    sections: [
+      {
+        title: "ADF Test",
+        body: "The gold standard for stationarity. Null hypothesis is unit root (random walk). Low p-value rejects the null — the series is stationary. The augmented version adds lag terms to handle autocorrelation in residuals.",
+        code: `from statsmodels.tsa.stattools import adfuller
+
+def adf_test(series, name="Series"):
+    res = adfuller(series, autolag='AIC')
+    p   = res[1]
+    print(f"{name}:  ADF={res[0]:.4f}, p={p:.4f}")
+    print(f"  {'STATIONARY (mean-reverting) ✓' if p < 0.05 else 'NON-STATIONARY (random walk) ✗'}")
+    return p < 0.05`,
+      },
+      {
+        title: "Hurst Exponent",
+        body: "H < 0.5 = mean-reverting. H = 0.5 = random walk. H > 0.5 = trending. The variance ratio method is the fastest implementation.",
+        code: `def hurst_exponent(series):
+    lags = range(2, 100)
+    tau  = [np.std(series[lag:] - series[:-lag])
+            for lag in lags]
+    H = np.polyfit(np.log(lags), np.log(tau), 1)[0]
+    category = ("mean-reverting" if H < 0.45
+                else "random walk" if H < 0.55
+                else "trending")
+    print(f"Hurst H={H:.3f} → {category}")
+    return H`,
+      },
+      {
+        title: "Half-Life Calculation",
+        body: "Fit an AR(1) regression to compute how fast the spread mean-reverts. The half-life determines your expected holding period. If half-life is too long, capital is tied up; too short, and transaction costs eat the edge.",
+        code: `import statsmodels.api as sm
+
+def half_life(spread):
+    model = sm.OLS(spread[1:],
+                   sm.add_constant(spread[:-1])).fit()
+    lam = model.params[1]
+    if lam >= 1.0:
+        print("Non-stationary — no mean reversion!")
+        return None
+    hl = -np.log(2) / np.log(lam)
+    print(f"Half-life: {hl:.1f} days")
+    return hl`,
+      },
+    ],
+  },
+  mentalModels: [
+    { icon: "🧲", title: "The Price Magnet", body: "Mean reversion works like a magnet. The 'mean' is the magnetic centre. When prices are pulled away from it (by news, sentiment, temporary imbalance), they feel a force pulling them back. The stronger the magnet (higher θ in OU terms), the faster the snap back. The question these tests answer: is the magnet actually there, or is this just a compass with no north?", insight: "The ADF test checks whether the magnet exists. The Hurst exponent measures its strength. The half-life tells you how strong the pull is in practical time units." },
+    { icon: "🔬", title: "Forensic Analysis", body: "A forensic analyst examines evidence to determine cause of death. A mean reversion analyst examines a time series to determine whether it has a genuine 'memory' (and will return to its mean) or is completely memoryless (random walk). The ADF test is the forensic tool. p<0.05 is the verdict: this series has memory.", insight: "Run all three tests — ADF, Hurst, and half-life. If they disagree, the series is borderline and the trade is risky. All three agreeing gives you confidence to size up." },
+    { icon: "⏰", title: "Half-Life as Your Trade Timer", body: "The half-life is not just a statistical curiosity — it is your trade management clock. Enter when the spread is 2σ from the mean. Expect to wait one half-life for it to be 1σ away, another for it to reach 0.5σ. Most of your P&L should arrive within 2-3 half-lives. If the trade is not working after 3× the half-life, something has changed.", insight: "Never hold a mean-reversion trade past 3× the half-life. At that point you are no longer mean-reversion trading — you are hoping." },
+  ],
+  validation: [
+    { claim: "ADF test is the standard for stationarity testing in financial time series", strength: "VERY STRONG", evidence: "Dickey & Fuller (1979, 1981) foundational papers. Standard in every econometrics textbook. Used universally by stat arb and pairs trading desks. The augmented version is robust to autocorrelated financial data." },
+    { claim: "Hurst Exponent correctly classifies mean-reverting, random walk, and trending series", strength: "STRONG", evidence: "Hurst (1951) derived it for hydrology. Peters (1994) applied it to financial markets. The variance ratio implementation is the fastest and most stable version for financial data." },
+    { claim: "Half-life from AR(1) regression is the correct estimator for OU reversion speed", strength: "STRONG", evidence: "Directly derived from the Euler-Maruyama discretisation of the OU SDE. Chan (2012) uses this formula throughout his pairs trading examples. Standard in all practical mean-reversion trading literature." },
+  ],
+  eli15: [
+    { term: "Why We Test at All", eli: "A random walk LOOKS like it mean-reverts in the short term — it wiggles up and down around some level. But it will eventually drift far away and never come back. If you trade it as a mean-reversion strategy, you lose money slowly and steadily. The tests separate genuine mean reversion from random wandering." },
+    { term: "ADF Test", eli: "The null hypothesis is: 'this series is a random walk.' ADF calculates a statistic. If the statistic is sufficiently negative (p < 0.05), you reject the null — the series mean-reverts. Think of it as a guilty-until-proven-innocent test for random walks." },
+    { term: "Hurst Exponent", eli: "H=0.5 is a pure random walk — no memory, no mean reversion. H=0.2 is strongly mean-reverting — the series has strong memory pulling it back to the mean. H=0.8 is strongly trending — past moves predict future moves in the same direction. Check this before any pairs trade." },
+    { term: "Half-Life in Plain English", eli: "Spread is currently $2 away from its mean. Half-life = 10 days. After 10 days: expected to be $1 away. After 20 days: $0.50 away. After 30 days: $0.25 away. This is your trade schedule. If the spread has not moved after 3× the half-life, the cointegration relationship may have broken down." },
+    { term: "Test the Spread, Not the Assets", eli: "Individual stock prices wander without bound — they are random walks by design. But Shell minus 1.2×BP might be stationary. You test the SPREAD because that is what you are trading. The individual prices being non-stationary is actually REQUIRED for cointegration to be meaningful." },
+  ],
+};
+
+const COINT_DATA = {
+  overview: {
+    color: C.accent,
+    what: "Cointegration analysis determines whether two or more assets share a common long-run trend such that a linear combination of them is stationary. Unlike correlation (short-term), cointegration is a structural long-run relationship. Two stocks can have zero correlation today but still be cointegrated, or high correlation and not be cointegrated at all.",
+    why: "Cointegration is the formal mathematical foundation of pairs trading and stat arb. Without it, you are eyeballing charts and hoping. With it, you have a statistical guarantee — under model assumptions — that the spread will remain bounded and mean-revert over time.",
+    when: "Use to: validate a pairs relationship before committing capital, find the optimal static hedge ratio, detect cointegration breakdown, or build baskets of 3+ assets using the Johansen test.",
+    stats: [{ value: "1987", label: "Engle & Granger — Nobel Prize 2003" }, { value: "β", label: "The cointegrating vector = optimal static hedge ratio" }, { value: "Two tests", label: "Engle-Granger (pairs) and Johansen (multi-asset)" }],
+    keyFacts: [
+      "Definition: X and Y are cointegrated if both are I(1) (unit root) but X − β·Y is I(0) (stationary).",
+      "Engle-Granger two-step: (1) regress X on Y to get β, (2) ADF-test the residuals. Stationary residuals = cointegrated.",
+      "Johansen test: multivariate ML approach. Handles 3+ assets, more powerful than Engle-Granger for small samples.",
+      "The cointegrating vector β gives the optimal static hedge ratio. Use Kalman Filter to make β time-varying.",
+      "Cointegration can break permanently. Monitor the z-score — if it stays above ±3σ for 20+ days without reverting, exit and stop trading the pair.",
+    ],
+  },
+  deepdive: {
+    color: C.accent,
+    sections: [
+      {
+        title: "Engle-Granger Test",
+        body: "Regress X on Y to get β. Test residuals (the spread) for stationarity with ADF. If ADF passes, X and Y are cointegrated and the spread is your tradeable instrument.",
+        code: `import statsmodels.api as sm
+from statsmodels.tsa.stattools import adfuller
+
+def engle_granger(price_x, price_y, sig=0.05):
+    model = sm.OLS(price_x,
+                   sm.add_constant(price_y)).fit()
+    beta, alpha = model.params[1], model.params[0]
+    spread = price_x - beta*price_y - alpha
+    p = adfuller(spread, autolag='AIC')[1]
+    print(f"beta={beta:.4f}, ADF p={p:.4f}")
+    print("Cointegrated ✓" if p < sig else "NOT cointegrated ✗")
+    return p < sig, beta, spread`,
+      },
+      {
+        title: "Johansen Test",
+        body: "More powerful than Engle-Granger for small samples and multi-asset baskets. Tests for the number of cointegrating vectors. Essential when working with 3+ related assets.",
+        code: `from statsmodels.tsa.vector_ar.vecm import coint_johansen
+
+def johansen_test(prices_df, det_order=0, k_ar_diff=1):
+    res = coint_johansen(prices_df, det_order, k_ar_diff)
+    print("Trace stat | CVs (90%, 95%, 99%)")
+    for i, r in enumerate(res.lr1):
+        cv = res.cvt[i]
+        sig = "✓" if r > cv[1] else "✗"
+        print(f"  r<={i}: {r:.2f} | {cv[1]:.2f} {sig}")
+    print(f"Cointegrating vectors:\n{res.evec}")
+    return res`,
+      },
+      {
+        title: "Breakdown Detection",
+        body: "Cointegrating relationships can and do break permanently. Monitor the rolling z-score. A persistent deviation beyond ±3σ for 20+ days signals structural breakdown — exit immediately.",
+        code: `def monitor_spread(spread, window=60, threshold=3.0):
+    z = ((spread - spread.rolling(window).mean())
+         / spread.rolling(window).std())
+    # Breakdown signal: |z| > threshold for 20+ consecutive days
+    breach = (abs(z) > threshold)
+    consec = breach.rolling(20).sum()
+    breakdown = consec >= 20
+    return z, breakdown`,
+      },
+    ],
+  },
+  mentalModels: [
+    { icon: "🐕🐕", title: "Two Dogs, One Leash", body: "Two dogs on a single leash attached to each other. Each dog can wander left or right freely in the short term — they might be 10 metres apart at any moment. But the leash ensures they cannot wander indefinitely far from each other. Shell and BP are the two dogs. The shared oil price exposure is the leash. Cointegration is the mathematical test for whether the leash actually exists.", insight: "If the leash breaks (cointegration fails), the dogs can now wander infinitely far apart. This is why you need breakdown monitoring — the moment cointegration fails, exit immediately." },
+    { icon: "💍", title: "Long-Run Marriage vs Short-Term Dates", body: "Correlation is like two people who happen to be going to the same party tonight — they are correlated today, but there is no structural commitment. Cointegration is like a marriage — they may argue and drift apart for weeks, but they are structurally tethered over the long run. For pairs trading, you need the marriage, not just a shared calendar event.", insight: "A pair with high correlation but no cointegration is dangerous. It looks safe but has no structural anchor. Always verify cointegration before trading any pair." },
+    { icon: "⚓", title: "The Economic Anchor", body: "Two oil companies should have cointegrated stock prices because they both depend on the oil price — that is the economic anchor. If you cannot identify the economic reason two assets should be cointegrated, the statistical relationship may be spurious. The Engle-Granger test tells you IF they are cointegrated. Your economic reasoning tells you WHY — and how durable that WHY is.", insight: "Always ask: what is the economic anchor? If Shell acquires a large non-oil business, the anchor weakens. If BP switches to renewables, the anchor breaks. Cointegration testing is lagging — your economic reasoning leads it." },
+  ],
+  validation: [
+    { claim: "Cointegration is the formal statistical basis for pairs trading profitability", strength: "VERY STRONG", evidence: "Engle & Granger (1987) Nobel 2003. Gatev, Goetzmann & Rouwenhorst (2006, RFS) documented profitability over 50+ years of US equity data. Standard in all stat arb literature." },
+    { claim: "Johansen test is more powerful than Engle-Granger for small samples and multi-asset portfolios", strength: "STRONG", evidence: "Johansen (1988, 1991) maximum likelihood approach. Cheung & Lai (1993) Monte Carlo study confirmed Johansen has superior power. For 3+ assets, Johansen is the only appropriate choice." },
+  ],
+  eli15: [
+    { term: "Cointegration vs Correlation", eli: "Correlation says: today when Shell goes up, BP tends to go up too. Cointegration says: over years, Shell and BP are structurally tethered — they drift apart for weeks but always snap back. You can have zero correlation today and still be cointegrated. For pairs trading, you need cointegration, not just correlation." },
+    { term: "I(1) and I(0)", eli: "I(1) means the series needs one round of differencing to become stationary — this is what most stock prices are. I(0) means already stationary. Cointegration says: two I(1) series can be combined to create an I(0) series. The combination is your tradeable spread. The individual prices are not tradeable on their own." },
+    { term: "Engle-Granger Test", eli: "Step 1: regress Stock A on Stock B, get hedge ratio β. Step 2: compute the residuals (spread = A − β·B). Step 3: ADF test on residuals. p<0.05 means the spread is stationary. That is your cointegration confirmation. Simple two-step procedure." },
+    { term: "Cointegration Breakdown", eli: "The leash between two dogs can snap. If Shell acquires a supermarket chain, it no longer tracks BP. The statistical test will eventually pick this up, but your z-score will tell you first — when it stays above ±3σ for 20+ consecutive days without reverting, the relationship is broken. Stop trading that pair immediately." },
+  ],
+};
+
+const BS_DATA = {
+  overview: {
+    color: C.red,
+    what: "The Black-Scholes model derives the fair price of a European call or put option from five inputs: stock price S, strike price K, time to expiry T, risk-free rate r, and volatility σ. The formula assumes the stock follows GBM and that a perfect hedge can be constructed at every instant — eliminating all risk and producing a unique fair price.",
+    why: "Every options desk globally uses Black-Scholes as the baseline pricing language. Even traders who know its assumptions are wrong use it — they convert option prices into implied volatility to compare options on a standardised scale. Understanding it is non-negotiable for any quant working with derivatives.",
+    when: "Use for: pricing European call and put options, computing the Greeks, calculating implied volatility from market prices, as the baseline before adding stochastic volatility or jumps.",
+    stats: [{ value: "1973", label: "Black-Scholes-Merton — Nobel Prize 1997" }, { value: "5 inputs", label: "S, K, T, r, σ — all observable except implied vol" }, { value: "Greeks", label: "Δ, Γ, θ, ν, ρ — all derived analytically" }],
+    keyFacts: [
+      "Call: C = S·N(d₁) − K·e^(−rT)·N(d₂). Put: P = K·e^(−rT)·N(−d₂) − S·N(−d₁).",
+      "d₁ = (ln(S/K) + (r + σ²/2)T) / (σ√T), d₂ = d₁ − σ√T.",
+      "Put-Call Parity: C − P = S − K·e^(−rT). Given call price, put price follows immediately.",
+      "Implied volatility: back-solve the formula given the market price. The vol smile/skew reveals where the model is wrong.",
+      "The Black-Scholes PDE: ∂C/∂t + rS·∂C/∂S + 0.5σ²S²·∂²C/∂S² = rC. All Greeks are partial derivatives of this equation.",
+    ],
+  },
+  deepdive: {
+    color: C.red,
+    sections: [
+      {
+        title: "The Formula & Greeks",
+        body: "The call price C = S·N(d₁) − K·e^(−rT)·N(d₂). Intuition: S·N(d₁) is the expected value of receiving the stock at expiry (risk-neutral probability weighted). K·e^(−rT)·N(d₂) is the discounted expected payment of the strike.",
+        code: `import numpy as np
+from scipy.stats import norm
+
+def black_scholes(S, K, T, r, sigma, opt='call'):
+    d1 = (np.log(S/K) + (r + 0.5*sigma**2)*T) / (sigma*np.sqrt(T))
+    d2 = d1 - sigma*np.sqrt(T)
+    if opt == 'call':
+        return S*norm.cdf(d1) - K*np.exp(-r*T)*norm.cdf(d2)
+    return K*np.exp(-r*T)*norm.cdf(-d2) - S*norm.cdf(-d1)
+
+def bs_greeks(S, K, T, r, sigma):
+    d1 = (np.log(S/K)+(r+0.5*sigma**2)*T)/(sigma*np.sqrt(T))
+    d2 = d1 - sigma*np.sqrt(T)
+    return {
+        "delta": norm.cdf(d1),
+        "gamma": norm.pdf(d1)/(S*sigma*np.sqrt(T)),
+        "theta": (-S*norm.pdf(d1)*sigma/(2*np.sqrt(T))
+                  - r*K*np.exp(-r*T)*norm.cdf(d2))/365,
+        "vega":  S*norm.pdf(d1)*np.sqrt(T)/100,
+    }`,
+      },
+      {
+        title: "Implied Volatility",
+        body: "Implied vol is the σ that makes BS formula price equal the market price. Back-solve using Brent's method. The vol smile — different IV at different strikes — shows Black-Scholes is wrong about constant σ.",
+        code: `from scipy.optimize import brentq
+
+def implied_vol(mkt_price, S, K, T, r, opt='call'):
+    f = lambda sig: black_scholes(S,K,T,r,sig,opt) - mkt_price
+    try:
+        return brentq(f, 0.001, 5.0, xtol=1e-6)
+    except ValueError:
+        return None  # No solution
+
+# Vol smile: OTM puts imply higher vol (crash protection demand)
+strikes = [80, 90, 95, 100, 105, 110, 120]
+# Typical: [35%, 28%, 24%, 20%, 21%, 23%, 27%]
+# The skew shows fear of crashes > euphoria of rallies`,
+      },
+      {
+        title: "Delta Hedging",
+        body: "The core insight of Black-Scholes: a market maker who sells an option can hedge the risk by holding Δ shares of the underlying. As the stock price moves, Δ changes, so the hedge must be continuously rebalanced. This dynamic hedging eliminates all risk — in the model.",
+        code: `def delta_hedge_pnl(S_path, K, T, r, sigma, dt=1/252):
+    """Simulate delta hedging P&L for a call seller."""
+    pnl = 0
+    for t in range(len(S_path) - 1):
+        tau = T - t*dt
+        if tau <= 0: break
+        delta = bs_greeks(S_path[t], K, tau, r, sigma)["delta"]
+        dS    = S_path[t+1] - S_path[t]
+        # Hedge: sold call, bought delta shares
+        pnl  += delta * dS     # Gain from stock hedge
+        # In perfect GBM, cumulative P&L → 0 (perfect hedge)
+    return pnl`,
+      },
+    ],
+  },
+  mentalModels: [
+    { icon: "🛡️", title: "The Perfect Insurance Premium", body: "An option is insurance. You pay a premium today for the right to sell (put) or buy (call) at a fixed price in the future. The Black-Scholes formula computes the actuarially fair premium. Just as car insurance depends on your car value, your driving history, and the policy duration — the option premium depends on S (car value), σ (your driving risk), and T (policy duration).", insight: "Implied volatility IS the insurance premium expressed as a volatility percentage. When markets are scared (2008, 2020), implied vol spikes — the insurance becomes expensive. When markets are calm, implied vol falls — insurance is cheap." },
+    { icon: "🔄", title: "The Perfect Hedge (and Why It Cannot Exist)", body: "The Black-Scholes logic: if you sell a call option, buy Δ shares of the stock. When the stock moves up, the call loses you money (you have to deliver the stock cheaply) — but your Δ shares gain money by exactly the same amount. The hedge is perfect — in a world of continuous trading, constant vol, and no jumps. Real markets have discrete trading, stochastic vol, and jumps. That is why implied vol smiles exist.", insight: "The vol smile is the market correcting for Black-Scholes being wrong. Out-of-the-money puts imply higher vol because real markets crash more than GBM predicts — buyers demand a crash risk premium." },
+    { icon: "🗺️", title: "Implied Vol as a Map of Fear", body: "Plot implied volatility across all strikes and expiries for a stock. This is the volatility surface — a 3D map. At-the-money options are the centre. Out-of-the-money puts (crash protection) are higher vol (more expensive). The shape of the surface tells you exactly where the market sees risk: steep put skew = fear of crash; high short-term vol = immediate uncertainty; flat term structure = no particular event expected.", insight: "Every options trader looks at the vol surface before trading. It tells you: where is the market mispricing risk? Where can you buy cheap vol or sell expensive vol? The surface IS the market's collective fear distribution." },
+  ],
+  validation: [
+    { claim: "Black-Scholes is the foundational model for options pricing", strength: "VERY STRONG", evidence: "Black & Scholes (1973) and Merton (1973) — Nobel Prize 1997. Fischer Black received it posthumously. The formula changed the options market immediately. CBOE introduced standardised options the same year (1973)." },
+    { claim: "The vol smile proves Black-Scholes constant-σ assumption is violated", strength: "VERY STRONG", evidence: "The vol smile emerged after the 1987 crash and has been persistent ever since. Rubinstein (1994) documented it. Gatheral (2006) 'The Volatility Surface' extended the framework. Every practitioner knows BS is wrong but uses it as the universal language." },
+  ],
+  eli15: [
+    { term: "Black-Scholes Formula", eli: "A formula that computes the fair price of an option given 5 inputs. The genius: it shows that if you continuously hedge a sold option by holding the right number of shares, all risk cancels out. This pinpoints a unique fair price. Five inputs: current price, strike, time, rate, and volatility." },
+    { term: "Implied Volatility", eli: "Black-Scholes needs σ as an input. But nobody knows the future volatility. Instead: look at the option's market price, then back-solve — what σ makes the formula give that price? That is implied volatility. It is the market's consensus estimate of future volatility, embedded in the option price." },
+    { term: "Delta (Δ)", eli: "A call with Δ=0.5 gains $0.50 when the stock rises $1. A call with Δ=0.9 (deep in-the-money) gains $0.90. Delta is how much stock exposure your option effectively represents. Market makers compute delta immediately and buy or sell the underlying stock to neutralise it." },
+    { term: "The Vol Smile", eli: "If Black-Scholes were correct, all options on the same stock would have the same implied vol. In reality, out-of-the-money puts (downside protection) have higher IV than at-the-money options. This smile is proof that markets expect crashes more than GBM predicts. The smile is Black-Scholes being corrected by the market in real-time." },
+    { term: "Theta (θ) — Time Decay", eli: "Every day that passes makes an option worth less — you have less time for a favourable move to happen. θ = −$5/day means the option loses $5 in value per day from the passage of time alone. Option SELLERS love theta. Option BUYERS fight it. Theta decay accelerates dramatically in the final weeks before expiry." },
+  ],
+};
+
+const ARMA_DATA = {
+  overview: {
+    color: C.amber,
+    what: "ARMA (AutoRegressive Moving Average) models are the foundational building blocks of time series analysis in quantitative finance. AR terms capture how today's return depends on past returns. MA terms capture how today's return depends on past shocks. ARIMA extends this by adding differencing to handle non-stationary price levels.",
+    why: "Before GARCH, ML, and neural networks, ARMA was the standard forecasting toolkit. It is still the baseline every model must beat. Understanding ARMA gives you the language to discuss serial correlation, stationarity, and the Box-Jenkins methodology underlying all modern time series work.",
+    when: "Use ARMA for: baseline return forecasting, identifying serial correlation in residuals, order selection for the mean equation in ARIMA+GARCH strategies, testing whether a series has predictable structure.",
+    stats: [{ value: "AR(p)", label: "AutoRegressive: today depends on last p return values" }, { value: "MA(q)", label: "Moving Average: today depends on last q shock terms" }, { value: "ARIMA", label: "Adds differencing for non-stationary price series" }],
+    keyFacts: [
+      "White noise ε_t ~ iid N(0,σ²) is the baseline: no predictable structure, no autocorrelation.",
+      "AR(1): X_t = φ·X_{t-1} + ε_t. Stationary if |φ| < 1. φ=1 is a random walk (unit root).",
+      "MA(1): X_t = ε_t + θ·ε_{t-1}. Always stationary — shocks decay after q periods.",
+      "ARMA(p,q): X_t = Σφᵢ·X_{t-i} + ε_t + Σθⱼ·ε_{t-j}. Most real series require both components.",
+      "Model selection: minimise AIC/BIC across a grid of (p,q) combinations. AIC favours larger models; BIC penalises complexity more harshly.",
+    ],
+  },
+  deepdive: {
+    color: C.amber,
+    sections: [
+      {
+        title: "The Model Family",
+        body: "White noise → AR(1) → MA(1) → ARMA(1,1) → ARIMA(1,1,1). Each step adds one layer of structure. Understanding the progression reveals what each component actually captures.",
+        code: `import numpy as np
+
+def simulate_ar1(phi, n=500, sigma=1.0):
+    X = np.zeros(n)
+    for t in range(1, n):
+        X[t] = phi*X[t-1] + np.random.normal(0, sigma)
+    return X
+# phi=0.8:  strong autocorrelation, slow mean reversion
+# phi=-0.8: alternating signs, fast mean reversion
+# phi=1.0:  RANDOM WALK — non-stationary!
+
+def simulate_ma1(theta, n=500, sigma=1.0):
+    eps = np.random.normal(0, sigma, n)
+    X = eps.copy()
+    X[1:] += theta * eps[:-1]
+    return X  # Always stationary regardless of theta`,
+      },
+      {
+        title: "ACF/PACF Order Identification",
+        body: "ACF and PACF plots reveal the AR and MA orders. AR(p): PACF cuts off at lag p, ACF decays gradually. MA(q): ACF cuts off at lag q, PACF decays gradually. ARMA(p,q): both decay gradually — use AIC/BIC grid search instead.",
+        code: `import statsmodels.api as sm
+import itertools, warnings
+warnings.filterwarnings("ignore")
+
+def select_arma(returns, max_p=3, max_q=3):
+    best_aic, best_order = np.inf, (0, 0, 0)
+    for p, q in itertools.product(range(max_p+1),
+                                   range(max_q+1)):
+        try:
+            m = sm.tsa.ARIMA(returns, order=(p,0,q)).fit()
+            if m.aic < best_aic:
+                best_aic = m.aic
+                best_order = (p, 0, q)
+        except: pass
+    print(f"Best ARMA order: {best_order}, AIC={best_aic:.1f}")
+    return best_order`,
+      },
+      {
+        title: "Residual Diagnostics",
+        body: "After fitting an ARMA model, the residuals must be white noise. Ljung-Box tests for remaining autocorrelation. Any significant autocorrelation means the model is misspecified — increase p or q.",
+        code: `def fit_and_diagnose(series, order=(1,0,1)):
+    model = sm.tsa.ARIMA(series, order=order).fit()
+    resid = model.resid
+    # Ljung-Box: H0 = residuals are white noise
+    lb_p = sm.stats.acorr_ljungbox(
+        resid, lags=10, return_df=False)[1][-1]
+    print(f"Ljung-Box p={lb_p:.4f} — "
+          f"{'White noise ✓' if lb_p > 0.05 else 'Autocorrelation remains ✗'}")
+    # One-step-ahead forecast
+    fc = model.forecast(steps=1)
+    print(f"Next-period forecast: {fc[0]:.4f}")
+    return model, fc[0]`,
+      },
+    ],
+  },
+  mentalModels: [
+    { icon: "📺", title: "Yesterday's News", body: "AR says: today's return is partly explained by yesterday's return (and the day before, etc.). It is like reading yesterday's newspaper to predict today's headlines. The news has faded — yesterday's move is only a fraction (φ) of today's story. The further back you go, the fainter the echo. AR captures this fading memory.", insight: "AR(1) with φ=0.8 means yesterday's return explains 80% of today's expected return (above the mean). With φ=0.2, only 20%. For financial returns, φ is usually small — the autocorrelation is real but weak." },
+    { icon: "💥", title: "Shock Decay (MA Terms)", body: "Imagine dropping a stone in still water. The ripples spread outward and gradually fade. MA says: today's return is partly driven by past random shocks (the stone drops), with each shock fading after q periods. After q periods, the shocks are completely gone. AR memory is infinite and decays gradually; MA memory is finite and cuts off sharply.", insight: "MA and AR are not competing — most real series have both. AR = the trend echoing forward. MA = the shock ripples fading. ARMA(1,1) is usually sufficient for daily financial returns." },
+    { icon: "🔊", title: "Signal vs Noise", body: "A radio broadcast has a signal (the intended programme) and noise (static, interference). ARMA models the signal. The AR component is the part of today's return that echoes past returns (structured signal). The MA component is the part driven by past random shocks (decaying interference). The residual ε_t is the new, completely unpredictable noise arriving today.", insight: "The goal is to extract the predictable signal (AR + MA components) and isolate the white noise residual. If the residual still has structure (fails Ljung-Box), your model has not captured all the signal yet." },
+  ],
+  validation: [
+    { claim: "ARMA/ARIMA captures autocorrelation structure in financial time series", strength: "STRONG", evidence: "Box & Jenkins (1970) 'Time Series Analysis' — foundational textbook. Autocorrelation in financial returns (especially in volatility) is extensively documented. ARIMA is the standard benchmark all modern forecasting models are tested against." },
+    { claim: "AIC/BIC model selection correctly penalises overfitting in order identification", strength: "STRONG", evidence: "Akaike (1974) AIC, Schwarz (1978) BIC. Both proven to select appropriate model complexity. BIC is more conservative and tends to select simpler models. Standard in every time series software package globally." },
+  ],
+  eli15: [
+    { term: "White Noise", eli: "The null hypothesis of time series analysis: completely random, zero memory, no pattern. Flipping a fair coin — past flips tell you nothing about the next. If returns were pure white noise, no strategy could ever work. In practice some structure exists, which is what ARMA tries to find and quantify." },
+    { term: "AR — AutoRegressive", eli: "Today's return is partly a scaled echo of yesterday's return. φ=0.5 means: if yesterday was unusually high (+2%), today will be somewhat above average (+1%) plus new random noise. AR captures momentum-like patterns at short horizons. If φ=1, it is a random walk — no reversion ever." },
+    { term: "MA — Moving Average", eli: "Today's return is partly driven by yesterday's surprise, not yesterday's return. If yesterday's market got shocking bad news (negative shock), today is somewhat affected by that surprise. MA shocks die out after exactly q periods. Short memory, clean cutoff." },
+    { term: "AIC vs BIC", eli: "When choosing between ARMA(1,0), ARMA(1,1), ARMA(2,1) etc., AIC and BIC score each model. They reward good fit and penalise extra parameters. BIC penalises parameters more heavily. The model with the lowest score wins. This prevents you from adding lags forever to improve fit while actually just overfitting." },
+    { term: "Ljung-Box Test", eli: "After fitting your ARMA model, check the residuals. If they still have autocorrelation, your model missed something. Ljung-Box tests this. p>0.05 means the residuals are white noise — you captured all the structure. p<0.05 means there is still predictable content in the residuals — increase p or q." },
+  ],
+};
+
+const BACKTEST_DATA = {
+  overview: {
+    color: C.blue,
+    what: "Backtesting simulates how a trading strategy would have performed on historical data. The gap between a research backtest (fast, vectorised, dangerous) and an event-driven backtest (slow, realistic, trustworthy) is the difference between a strategy that looks great on paper and one that actually works live.",
+    why: "A poorly built backtest gives false confidence. You deploy capital based on a Sharpe-3 backtest and immediately start losing money. A correctly built backtest catches issues before they cost real money. The goal: maximum correlation between backtest results and live performance.",
+    when: "Always backtest before deploying any systematic strategy. Research backtests for fast idea exploration. Event-driven backtests for final pre-deployment validation. Walk-forward testing to get honest out-of-sample performance estimates.",
+    stats: [{ value: "3 biases", label: "Look-ahead, survivorship, and optimisation — each can make a loser look like a winner" }, { value: "Walk-forward", label: "The correct methodology: train on first 70%, evaluate on last 30%" }, { value: "Event-driven", label: "The gold standard: simulates actual order flow and fills" }],
+    keyFacts: [
+      "Research backtest: vectorised using pandas/numpy. Fast but easy to corrupt with look-ahead bias. For exploration only.",
+      "Event-driven backtest: processes data bar by bar, maintains full simulation of orders, fills, and portfolio. Slower, much more reliable.",
+      "Look-ahead bias: using data not available at trade time. The most common and dangerous flaw.",
+      "Survivorship bias: testing only on assets still alive today. Dead companies are missing. Overstates returns by 1-2%+ per year.",
+      "Optimisation bias: fitting parameters to in-sample data. Always validate on unseen out-of-sample data.",
+    ],
+  },
+  deepdive: {
+    color: C.blue,
+    sections: [
+      {
+        title: "The Three Biases",
+        body: "Understanding and eliminating the three major biases is the core engineering skill of backtesting. Each one can make a completely unprofitable strategy appear to have strong historical performance.",
+        code: `# 1. LOOK-AHEAD BIAS — most common
+# Wrong: signal uses today's close to trade AT the close
+signal = (close[t] > close[t-1])  # Uses today's close!
+fill   = close[t]                  # Can't trade at this price
+
+# Correct: signal uses only past data, fill next day's open
+signal = (close[t-1] > close[t-2])  # Yesterday's close
+fill   = open_price[t+1]            # Next day's open
+
+# 2. SURVIVORSHIP BIAS
+# Wrong: load today's S&P500 constituents, backtest from 2000
+# Correct: use point-in-time constituent data from each date
+
+# 3. OPTIMISATION BIAS (data snooping)
+# Wrong: try 1000 parameter combos, report the best
+# Correct: optimise on train set, report ONLY test set result
+train = prices[:int(len(prices)*0.7)]
+test  = prices[int(len(prices)*0.7):]
+best_params = optimise(train)  # Fit on train only
+result = evaluate(test, best_params)  # Report test ONLY`,
+      },
+      {
+        title: "Transaction Costs",
+        body: "Many strategies that look profitable before costs become losers after. Always include commission + slippage + spread. For high-frequency strategies, costs can easily exceed gross returns.",
+        code: `class TxCosts:
+    def __init__(self, commission_bps=5,
+                 slippage_bps=10, spread_bps=5):
+        # Total round-trip cost in basis points
+        self.bps = commission_bps + slippage_bps + spread_bps
+
+    def fill_price(self, price, direction):
+        # direction: +1 buy (pay more), -1 sell (receive less)
+        return price * (1 + direction * self.bps/10000)
+
+# Reality check:
+# 20 bps round-trip x 200 trades/year = 4%/year in costs
+# Strategy earning 5% gross => 1% net after costs
+# Not worth the risk for that margin`,
+      },
+      {
+        title: "Walk-Forward Testing",
+        body: "The correct validation method. Split data chronologically. Train on the first portion. Test on the held-out portion. Never let test data touch the training process. Report only test-period performance.",
+        code: `def walk_forward(prices, returns, train_frac=0.7,
+                  n_windows=5):
+    results = []
+    n = len(prices)
+    window = n // n_windows
+    for i in range(n_windows - 1):
+        train_end = (i + 1) * window
+        test_end  = min(train_end + window, n)
+        train_r = returns[:train_end]
+        test_r  = returns[train_end:test_end]
+        # Optimise ONLY on train
+        params = optimise_strategy(train_r)
+        # Evaluate ONLY on test
+        oos_sharpe = evaluate_strategy(test_r, params)
+        results.append(oos_sharpe)
+        print(f"Window {i+1}: OOS Sharpe={oos_sharpe:.2f}")
+    print(f"Mean OOS Sharpe: {np.mean(results):.2f}")
+    return results`,
+      },
+    ],
+  },
+  mentalModels: [
+    { icon: "📰", title: "The Newspaper Test", body: "Imagine trading using tomorrow's newspaper to make today's decision. You would win every time. Look-ahead bias is this — but subtle. It hides in places like: using a stock's final ticker symbol instead of its symbol at the time, using forward-adjusted prices in a non-forward-adjusted strategy, using quarterly earnings data before the release date. The test: for every data point you use, ask 'would I have had this exact data at trade time?'", insight: "Look-ahead bias is the most dangerous because it is silent. It produces no errors and no warnings. The only way to detect it is meticulous design review before running the backtest." },
+    { icon: "🪦", title: "The Cemetery Problem", body: "You are writing a history of successful people who started businesses in 2000. You can only interview people who are still alive in 2026. The people who failed and died (businesses that went bankrupt) are invisible to you. Your history will be wildly optimistic. Survivorship bias in backtesting is identical: testing on the S&P500 as it exists today means all companies that failed between 2000 and 2026 are missing from your dataset.", insight: "The larger the time horizon of your backtest, the worse survivorship bias becomes. Strategies that 'avoid losers' look especially good because the losers were never in your test universe to begin with." },
+    { icon: "🎯", title: "The Overfitted Suit", body: "A perfectly tailored suit fits you exactly in December 2024 but may not fit in December 2026 after you gained weight or changed shape. An overfitted strategy is tailored perfectly to historical data — it knows every bump and quirk of 2015-2024. Come 2025, it encounters a different 'shape' of market and falls apart. Walk-forward testing is trying on the suit in a fitting room that simulates next year's body, not this year's.", insight: "A strategy with Sharpe 4.0 in-sample and Sharpe 0.3 out-of-sample is not a strategy. It is a memorisation of historical noise. The gap between in-sample and out-of-sample Sharpe is your measure of overfitting." },
+  ],
+  validation: [
+    { claim: "Look-ahead bias is the most common cause of backtest failure in live trading", strength: "VERY STRONG", evidence: "Lopez de Prado (2018) 'Advances in Financial Machine Learning' dedicates entire chapters to look-ahead and related biases. Survey data consistently shows it as the primary cause of strategy degradation from backtest to live trading." },
+    { claim: "Survivorship bias overstates strategy returns by 1-2%+ per year", strength: "VERY STRONG", evidence: "Elton, Gruber & Blake (1996) quantified 0.9-2.0% per year in mutual fund databases. Brown, Goetzmann & Ross (1995) confirmed in hedge fund data. Standard finding across all empirical finance research." },
+    { claim: "Walk-forward testing is the correct method to estimate out-of-sample performance", strength: "STRONG", evidence: "Pardo (2008) 'The Evaluation and Optimization of Trading Strategies'. Bailey et al. (2014) 'The Probability of Backtest Overfitting'. Standard in all serious systematic trading firms." },
+  ],
+  eli15: [
+    { term: "Research Backtest", eli: "A research backtest is like doing maths in your head. Fast and useful for exploring ideas. But it is easy to make mistakes — accidentally using tomorrow's data to predict today. Fine for quick exploration. Never use it to make real capital decisions." },
+    { term: "Event-Driven Backtest", eli: "A full simulation of your trading desk. Every price tick arrives one at a time. The system decides what to do, places an order, gets a fill with realistic cost and delay, updates the portfolio. Much harder to build, but also much harder to accidentally cheat." },
+    { term: "Look-Ahead Bias", eli: "Using tomorrow's newspaper to make today's bet. In backtesting, it hides in subtle places: using closing prices to generate signals that supposedly execute AT the close, using constituent data from today to test what would have been in the index years ago. Silent, no error messages, completely lethal to backtest validity." },
+    { term: "Walk-Forward Testing", eli: "Split your data in time: train on the first 70%, test on the last 30%. Report only the test period performance. The test data was never touched during development. This gives you the honest answer to: does this strategy actually work, or did I just fit noise?" },
+    { term: "Transaction Cost Reality Check", eli: "Backtest shows 20% annual return. Sounds great. Add 5 bps commission + 10 bps slippage + 5 bps spread = 20 bps per round trip. 200 trades per year = 4% annual cost. Your 20% becomes 16%. If your gross was 5% — you are losing money. Always calculate the cost load before getting excited about gross returns." },
+  ],
+};
+
+// ── 40 STABLE WRAPPER COMPONENTS ─────────────────────────────
+const OUOverview    = () => <GenericOverview    {...OU_DATA.overview} />;
+const OUDeepDive    = () => <GenericDeepDive    {...OU_DATA.deepdive} />;
+const OUMental      = () => <GenericMentalModel models={OU_DATA.mentalModels} color={OU_DATA.overview.color} />;
+const OUValidation  = () => <GenericValidation  entries={OU_DATA.validation} />;
+const OUELI15       = () => <GenericELI15       items={OU_DATA.eli15} color={OU_DATA.overview.color} />;
+
+const ARIGARCHOverview   = () => <GenericOverview    {...ARIGARCH_DATA.overview} />;
+const ARIGARCHDeepDive   = () => <GenericDeepDive    {...ARIGARCH_DATA.deepdive} />;
+const ARIGARCHMental     = () => <GenericMentalModel models={ARIGARCH_DATA.mentalModels} color={ARIGARCH_DATA.overview.color} />;
+const ARIGARCHValidation = () => <GenericValidation  entries={ARIGARCH_DATA.validation} />;
+const ARIGARCHELI15      = () => <GenericELI15       items={ARIGARCH_DATA.eli15} color={ARIGARCH_DATA.overview.color} />;
+
+const KalmanOverview   = () => <GenericOverview    {...KALMAN_DATA.overview} />;
+const KalmanDeepDive   = () => <GenericDeepDive    {...KALMAN_DATA.deepdive} />;
+const KalmanMental     = () => <GenericMentalModel models={KALMAN_DATA.mentalModels} color={KALMAN_DATA.overview.color} />;
+const KalmanValidation = () => <GenericValidation  entries={KALMAN_DATA.validation} />;
+const KalmanELI15      = () => <GenericELI15       items={KALMAN_DATA.eli15} color={KALMAN_DATA.overview.color} />;
+
+const HMMOverview   = () => <GenericOverview    {...HMM_DATA.overview} />;
+const HMMDeepDive   = () => <GenericDeepDive    {...HMM_DATA.deepdive} />;
+const HMMMental     = () => <GenericMentalModel models={HMM_DATA.mentalModels} color={HMM_DATA.overview.color} />;
+const HMMValidation = () => <GenericValidation  entries={HMM_DATA.validation} />;
+const HMMELI15      = () => <GenericELI15       items={HMM_DATA.eli15} color={HMM_DATA.overview.color} />;
+
+const GBMOverview   = () => <GenericOverview    {...GBM_DATA.overview} />;
+const GBMDeepDive   = () => <GenericDeepDive    {...GBM_DATA.deepdive} />;
+const GBMMental     = () => <GenericMentalModel models={GBM_DATA.mentalModels} color={GBM_DATA.overview.color} />;
+const GBMValidation = () => <GenericValidation  entries={GBM_DATA.validation} />;
+const GBMELI15      = () => <GenericELI15       items={GBM_DATA.eli15} color={GBM_DATA.overview.color} />;
+
+const MROverview   = () => <GenericOverview    {...MR_DATA.overview} />;
+const MRDeepDive   = () => <GenericDeepDive    {...MR_DATA.deepdive} />;
+const MRMental     = () => <GenericMentalModel models={MR_DATA.mentalModels} color={MR_DATA.overview.color} />;
+const MRValidation = () => <GenericValidation  entries={MR_DATA.validation} />;
+const MRELI15      = () => <GenericELI15       items={MR_DATA.eli15} color={MR_DATA.overview.color} />;
+
+const COINTOverview   = () => <GenericOverview    {...COINT_DATA.overview} />;
+const COINTDeepDive   = () => <GenericDeepDive    {...COINT_DATA.deepdive} />;
+const COINTMental     = () => <GenericMentalModel models={COINT_DATA.mentalModels} color={COINT_DATA.overview.color} />;
+const COINTValidation = () => <GenericValidation  entries={COINT_DATA.validation} />;
+const COINTELI15      = () => <GenericELI15       items={COINT_DATA.eli15} color={COINT_DATA.overview.color} />;
+
+const BSOverview   = () => <GenericOverview    {...BS_DATA.overview} />;
+const BSDeepDive   = () => <GenericDeepDive    {...BS_DATA.deepdive} />;
+const BSMental     = () => <GenericMentalModel models={BS_DATA.mentalModels} color={BS_DATA.overview.color} />;
+const BSValidation = () => <GenericValidation  entries={BS_DATA.validation} />;
+const BSELI15      = () => <GenericELI15       items={BS_DATA.eli15} color={BS_DATA.overview.color} />;
+
+const ARMAOverview   = () => <GenericOverview    {...ARMA_DATA.overview} />;
+const ARMADeepDive   = () => <GenericDeepDive    {...ARMA_DATA.deepdive} />;
+const ARMAMental     = () => <GenericMentalModel models={ARMA_DATA.mentalModels} color={ARMA_DATA.overview.color} />;
+const ARMAValidation = () => <GenericValidation  entries={ARMA_DATA.validation} />;
+const ARMAELI15      = () => <GenericELI15       items={ARMA_DATA.eli15} color={ARMA_DATA.overview.color} />;
+
+const BTOverview   = () => <GenericOverview    {...BACKTEST_DATA.overview} />;
+const BTDeepDive   = () => <GenericDeepDive    {...BACKTEST_DATA.deepdive} />;
+const BTMental     = () => <GenericMentalModel models={BACKTEST_DATA.mentalModels} color={BACKTEST_DATA.overview.color} />;
+const BTValidation = () => <GenericValidation  entries={BACKTEST_DATA.validation} />;
+const BTELI15      = () => <GenericELI15       items={BACKTEST_DATA.eli15} color={BACKTEST_DATA.overview.color} />;
+
 // ── LIBRARY DATA ─────────────────────────────────────────────
 // To add a new article: push a new object into ARTICLES.
 // All section components referenced here must be defined above.
@@ -2266,9 +3365,189 @@ const ARTICLES = [
     description: "An interactive, searchable reference for every mathematical symbol, statistical concept, finance metric, and key formula that appears across the library. Each entry shows a formal definition, a plain-English explanation, and an ELI15 analogy. Don't read like a dumb-dumb — look it up here first.",
     sourceUrl: null,
     sections: [
-      { id: "search",    label: "Search All",         component: GlossaryHomeTab },
-      { id: "greek",     label: "Greek Letters",      component: GlossaryGreekTab },
-      { id: "formulas",  label: "Core Formulas",      component: GlossaryFormulasTab },
+      { id: "search",    label: "Search All",    component: GlossaryHomeTab },
+      { id: "greek",     label: "Greek Letters", component: GlossaryGreekTab },
+      { id: "formulas",  label: "Formulas",      component: GlossaryFormulasTab },
+    ],
+  },
+  {
+    id: "ornstein-uhlenbeck",
+    title: "The Ornstein-Uhlenbeck Process",
+    subtitle: "Mean reversion modelled: half-life, parameter estimation, and pairs trading signals",
+    author: "QuantStart", handle: "quantstart.com", date: "2024",
+    difficulty: "INTERMEDIATE", color: C.accent,
+    tags: ["Mean Reversion", "Pairs Trading", "Stochastic Processes", "Python"],
+    stats: ["Half-life formula", "OLS estimation", "Z-score signals"],
+    description: "The mathematical foundation of pairs trading and spread strategies. Covers the OU SDE (dX=θ(μ−X)dt+σdW), discrete-time parameter estimation via OLS regression, half-life calculation, and building a pairs trading signal from the OU z-score. Includes mental models, Python code, and validation against the Vasicek and CIR interest rate models.",
+    sourceUrl: "https://www.quantstart.com/articles/Ornstein-Uhlenbeck-Simulation-with-Python/",
+    sections: [
+      { id: "overview",  label: "Overview",       component: OUOverview },
+      { id: "model",     label: "The Model",      component: OUDeepDive },
+      { id: "mental",    label: "Mental Models",  component: OUMental },
+      { id: "valid",     label: "Validation",     component: OUValidation },
+      { id: "eli15",     label: "ELI15",          component: OUELI15 },
+    ],
+  },
+  {
+    id: "arima-garch-strategy",
+    title: "ARIMA + GARCH Trading Strategy on the S&P500",
+    subtitle: "Combine time series mean and variance models into a complete directional strategy",
+    author: "QuantStart", handle: "quantstart.com", date: "2024",
+    difficulty: "INTERMEDIATE", color: C.amber,
+    tags: ["ARIMA", "GARCH", "Time Series", "S&P500", "Python"],
+    stats: ["Rolling window refit", "AIC order selection", "Direction + volatility signals"],
+    description: "QuantStart's complete ARIMA+GARCH strategy applied to the S&P500. ARIMA forecasts the direction of next-day returns. GARCH forecasts their volatility. A daily rolling window keeps both models current. Covers AIC order selection, combined signal generation, position sizing, and honest out-of-sample backtest construction.",
+    sourceUrl: "https://www.quantstart.com/articles/ARIMA-GARCH-Trading-Strategy-on-the-SP500-Stock-Market-Index-Using-R/",
+    sections: [
+      { id: "overview",  label: "Overview",       component: ARIGARCHOverview },
+      { id: "model",     label: "The Model",      component: ARIGARCHDeepDive },
+      { id: "mental",    label: "Mental Models",  component: ARIGARCHMental },
+      { id: "valid",     label: "Validation",     component: ARIGARCHValidation },
+      { id: "eli15",     label: "ELI15",          component: ARIGARCHELI15 },
+    ],
+  },
+  {
+    id: "kalman-filter",
+    title: "State Space Models and the Kalman Filter",
+    subtitle: "The optimal Bayesian estimator for hidden states — applied to dynamic hedge ratios",
+    author: "QuantStart", handle: "quantstart.com", date: "2024",
+    difficulty: "ADVANCED", color: C.blue,
+    tags: ["Kalman Filter", "State Space", "Pairs Trading", "Bayesian", "Python"],
+    stats: ["Predict-Update cycle", "Dynamic β estimation", "No lookback window"],
+    description: "The Kalman Filter — originally built for NASA's Apollo program — tracks time-varying hidden states from noisy observations. In trading, it dynamically estimates the hedge ratio between two cointegrated assets, continuously updating as prices arrive. Covers the state space model, the predict-update algorithm, Q/R tuning, and the TLT/IEI pairs trading application.",
+    sourceUrl: "https://www.quantstart.com/articles/State-Space-Models-and-the-Kalman-Filter/",
+    sections: [
+      { id: "overview",  label: "Overview",       component: KalmanOverview },
+      { id: "model",     label: "The Model",      component: KalmanDeepDive },
+      { id: "mental",    label: "Mental Models",  component: KalmanMental },
+      { id: "valid",     label: "Validation",     component: KalmanValidation },
+      { id: "eli15",     label: "ELI15",          component: KalmanELI15 },
+    ],
+  },
+  {
+    id: "hidden-markov-models",
+    title: "Hidden Markov Models for Market Regime Detection",
+    subtitle: "Detect bull, bear, and sideways regimes — and switch strategies accordingly",
+    author: "QuantStart", handle: "quantstart.com", date: "2024",
+    difficulty: "ADVANCED", color: "#e879f9",
+    tags: ["HMM", "Regime Detection", "Machine Learning", "hmmlearn", "Python"],
+    stats: ["Baum-Welch training", "Posterior probabilities", "Strategy switching"],
+    description: "Hidden Markov Models treat markets as systems switching between hidden regimes (bull/bear/sideways) that emit characteristic return distributions. The Baum-Welch EM algorithm learns the regimes automatically from unlabelled return data. Covers model structure, training, Viterbi decoding, posterior probability signals, and regime-based strategy switching.",
+    sourceUrl: "https://www.quantstart.com/articles/market-regime-detection-using-hidden-markov-models-in-qstrader/",
+    sections: [
+      { id: "overview",  label: "Overview",       component: HMMOverview },
+      { id: "model",     label: "The Model",      component: HMMDeepDive },
+      { id: "mental",    label: "Mental Models",  component: HMMMental },
+      { id: "valid",     label: "Validation",     component: HMMValidation },
+      { id: "eli15",     label: "ELI15",          component: HMMELI15 },
+    ],
+  },
+  {
+    id: "geometric-brownian-motion",
+    title: "Geometric Brownian Motion",
+    subtitle: "The foundation of Black-Scholes, Monte Carlo simulation, and stochastic calculus",
+    author: "QuantStart", handle: "quantstart.com", date: "2024",
+    difficulty: "INTERMEDIATE", color: C.accent,
+    tags: ["GBM", "Stochastic Calculus", "Monte Carlo", "Options", "Ito's Lemma"],
+    stats: ["dS=μSdt+σSdW", "Ito correction (−σ²/2)", "Monte Carlo pricing"],
+    description: "Geometric Brownian Motion is the mathematical bedrock of modern quantitative finance. Covers the GBM SDE and its exact solution via Ito's Lemma, the Ito correction term and why it matters, Python simulation, and Monte Carlo European option pricing — showing how any option can be priced without an analytical formula.",
+    sourceUrl: "https://www.quantstart.com/articles/Geometric-Brownian-Motion/",
+    sections: [
+      { id: "overview",  label: "Overview",       component: GBMOverview },
+      { id: "model",     label: "The Model",      component: GBMDeepDive },
+      { id: "mental",    label: "Mental Models",  component: GBMMental },
+      { id: "valid",     label: "Validation",     component: GBMValidation },
+      { id: "eli15",     label: "ELI15",          component: GBMELI15 },
+    ],
+  },
+  {
+    id: "mean-reversion-testing",
+    title: "Statistical Mean Reversion Testing",
+    subtitle: "ADF test, Hurst Exponent, and half-life — confirming a spread is actually tradeable",
+    author: "QuantStart", handle: "quantstart.com", date: "2024",
+    difficulty: "INTERMEDIATE", color: C.amber,
+    tags: ["ADF Test", "Hurst Exponent", "Half-Life", "Pairs Trading", "Statistics"],
+    stats: ["ADF p<0.05", "Hurst H<0.5", "Half-life = ln(2)/θ"],
+    description: "Before committing capital to any pairs trade, you must confirm the spread is genuinely mean-reverting — not just a random walk that looks like it reverts. Covers the Augmented Dickey-Fuller test, the Hurst Exponent via variance ratio, and the half-life calculation from an AR(1) regression. All three tests should agree before you trade.",
+    sourceUrl: "https://www.quantstart.com/articles/Basics-of-Statistical-Mean-Reversion-Testing/",
+    sections: [
+      { id: "overview",  label: "Overview",       component: MROverview },
+      { id: "model",     label: "The Tests",      component: MRDeepDive },
+      { id: "mental",    label: "Mental Models",  component: MRMental },
+      { id: "valid",     label: "Validation",     component: MRValidation },
+      { id: "eli15",     label: "ELI15",          component: MRELI15 },
+    ],
+  },
+  {
+    id: "cointegration-analysis",
+    title: "Cointegrated Time Series Analysis for Mean Reversion Trading",
+    subtitle: "Engle-Granger, Johansen, and the formal statistical foundation of pairs trading",
+    author: "QuantStart", handle: "quantstart.com", date: "2024",
+    difficulty: "INTERMEDIATE", color: C.accent,
+    tags: ["Cointegration", "Pairs Trading", "Engle-Granger", "Johansen", "Statistics"],
+    stats: ["Nobel 2003", "Two-step EG test", "Multi-asset Johansen"],
+    description: "Cointegration is the formal statistical foundation of pairs trading. Covers the mathematical definition of I(0) and I(1) series, the Engle-Granger two-step test, the Johansen multivariate test for 3+ assets, cointegrating vector extraction, and breakdown detection using rolling z-scores.",
+    sourceUrl: "https://www.quantstart.com/articles/cointegrated-time-series-analysis-for-mean-reversion-trading-with-r/",
+    sections: [
+      { id: "overview",  label: "Overview",       component: COINTOverview },
+      { id: "model",     label: "The Tests",      component: COINTDeepDive },
+      { id: "mental",    label: "Mental Models",  component: COINTMental },
+      { id: "valid",     label: "Validation",     component: COINTValidation },
+      { id: "eli15",     label: "ELI15",          component: COINTELI15 },
+    ],
+  },
+  {
+    id: "black-scholes-pricing",
+    title: "Derivatives Pricing I — Black-Scholes Model",
+    subtitle: "Deriving and implementing the most important formula in quantitative finance",
+    author: "QuantStart", handle: "quantstart.com", date: "2024",
+    difficulty: "ADVANCED", color: C.red,
+    tags: ["Black-Scholes", "Options", "Greeks", "Implied Volatility", "Derivatives"],
+    stats: ["Nobel Prize 1997", "5 inputs", "Greeks: Δ Γ θ ν ρ"],
+    description: "The Black-Scholes formula derives the fair price of a European option from five observable inputs. Covers the formula and its intuitive interpretation, all five Greeks derived analytically, implied volatility back-solving via Brent's method, delta hedging simulation, and an honest discussion of where the model is wrong (the vol smile).",
+    sourceUrl: "https://www.quantstart.com/articles/derivatives-pricing-i-pricing-under-the-black-scholes-model/",
+    sections: [
+      { id: "overview",  label: "Overview",       component: BSOverview },
+      { id: "model",     label: "The Model",      component: BSDeepDive },
+      { id: "mental",    label: "Mental Models",  component: BSMental },
+      { id: "valid",     label: "Validation",     component: BSValidation },
+      { id: "eli15",     label: "ELI15",          component: BSELI15 },
+    ],
+  },
+  {
+    id: "arma-time-series",
+    title: "ARMA and ARIMA Time Series Models",
+    subtitle: "White noise → AR → MA → ARMA → ARIMA — the full building-block progression",
+    author: "QuantStart", handle: "quantstart.com", date: "2024",
+    difficulty: "INTERMEDIATE", color: C.amber,
+    tags: ["ARMA", "ARIMA", "Time Series", "ACF", "PACF", "Forecasting"],
+    stats: ["AR + MA = ARMA", "AIC/BIC selection", "Ljung-Box residual test"],
+    description: "The foundational time series model family. Builds from white noise through AR(1), MA(1), ARMA(p,q), to ARIMA(p,d,q) step by step. Covers ACF/PACF identification plots, AIC/BIC model selection across a parameter grid, and residual diagnostics via the Ljung-Box test. The baseline every other time series model is measured against.",
+    sourceUrl: "https://www.quantstart.com/articles/ARMA-ARIMA-Models/",
+    sections: [
+      { id: "overview",  label: "Overview",       component: ARMAOverview },
+      { id: "model",     label: "The Model",      component: ARMADeepDive },
+      { id: "mental",    label: "Mental Models",  component: ARMAMental },
+      { id: "valid",     label: "Validation",     component: ARMAValidation },
+      { id: "eli15",     label: "ELI15",          component: ARMAELI15 },
+    ],
+  },
+  {
+    id: "backtesting-python",
+    title: "Backtesting Systematic Strategies in Python",
+    subtitle: "Research vs event-driven, the three fatal biases, and walk-forward validation",
+    author: "QuantStart", handle: "quantstart.com", date: "2024",
+    difficulty: "INTERMEDIATE", color: C.blue,
+    tags: ["Backtesting", "Python", "Look-Ahead Bias", "Walk-Forward", "Risk"],
+    stats: ["3 major biases", "Transaction cost modelling", "Walk-forward framework"],
+    description: "Building a backtest that actually predicts live performance is one of the hardest parts of systematic trading. Covers the gap between research and event-driven backtests, the three fatal biases (look-ahead, survivorship, optimisation), realistic transaction cost modelling, and the walk-forward validation framework that gives honest out-of-sample performance estimates.",
+    sourceUrl: "https://www.quantstart.com/articles/backtesting-systematic-trading-strategies-in-python-considerations-and-open-source-frameworks/",
+    sections: [
+      { id: "overview",  label: "Overview",       component: BTOverview },
+      { id: "model",     label: "The Framework",  component: BTDeepDive },
+      { id: "mental",    label: "Mental Models",  component: BTMental },
+      { id: "valid",     label: "Validation",     component: BTValidation },
+      { id: "eli15",     label: "ELI15",          component: BTELI15 },
     ],
   },
 ];
